@@ -3,905 +3,1023 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>就労継続支援A型 売上シミュレーター 2024</title>
+<title>就労継続支援B型 経営サポートシミュレーター</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=DM+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap');
 
-  :root {
-    --bg: #0a0d14;
-    --surface: #111620;
-    --surface2: #1a2035;
-    --border: #1e2d4a;
-    --accent: #00d4ff;
-    --accent2: #7c3aed;
-    --accent3: #10b981;
-    --warn: #f59e0b;
-    --danger: #ef4444;
-    --text: #e2e8f0;
-    --muted: #64748b;
-    --glow: 0 0 30px rgba(0,212,255,0.15);
-  }
+:root {
+  --cream:    #fdf8f3;
+  --ivory:    #f9f3eb;
+  --warm:     #f4ece0;
+  --rose:     #c9788a;
+  --rose-lt:  #e8b4be;
+  --rose-dk:  #9e4f62;
+  --mauve:    #b89aae;
+  --sage:     #7a9e8b;
+  --sage-lt:  #a8c5b5;
+  --gold:     #c8965a;
+  --gold-lt:  #e8c49a;
+  --charcoal: #3d3535;
+  --mid:      #7a6e6e;
+  --light:    #b0a5a5;
+  --border:   #e8ddd5;
+  --shadow:   rgba(100,70,70,0.08);
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    font-family: 'Noto Sans JP', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    background-image: 
-      radial-gradient(ellipse at 10% 0%, rgba(0,212,255,0.08) 0%, transparent 50%),
-      radial-gradient(ellipse at 90% 100%, rgba(124,58,237,0.08) 0%, transparent 50%);
-  }
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: var(--cream);
+  color: var(--charcoal);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse at 15% 0%, rgba(201,120,138,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 100%, rgba(122,158,139,0.07) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(200,150,90,0.04) 0%, transparent 70%);
+}
 
-  .header {
-    padding: 28px 40px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    backdrop-filter: blur(10px);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(10,13,20,0.9);
-  }
+/* ─── DECORATIVE SVG ─── */
+.deco { position: fixed; pointer-events: none; z-index: 0; opacity: 0.18; }
+.deco-tl { top: -40px; left: -40px; width: 260px; }
+.deco-br { bottom: -40px; right: -40px; width: 220px; transform: rotate(180deg); }
 
-  .logo-icon {
-    width: 44px; height: 44px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px;
-  }
+/* ─── HEADER ─── */
+.header {
+  padding: 28px 48px 24px;
+  display: flex; align-items: center; gap: 20px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(253,248,243,0.92);
+  backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 100;
+}
 
-  .header-text h1 {
-    font-size: 18px; font-weight: 700; letter-spacing: 0.02em;
-  }
-  .header-text p {
-    font-size: 11px; color: var(--muted); letter-spacing: 0.1em;
-    font-family: 'DM Mono', monospace;
-  }
+.header-ornament {
+  width: 48px; height: 48px;
+  background: linear-gradient(135deg, var(--rose), var(--mauve));
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 4px 16px rgba(201,120,138,0.25);
+  flex-shrink: 0;
+}
 
-  .badge {
-    margin-left: auto;
-    background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15));
-    border: 1px solid rgba(0,212,255,0.3);
-    color: var(--accent);
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-family: 'DM Mono', monospace;
-    letter-spacing: 0.1em;
-  }
+.header-text h1 {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--rose-dk);
+  letter-spacing: 0.04em;
+}
+.header-text p {
+  font-size: 11px;
+  color: var(--light);
+  letter-spacing: 0.12em;
+  margin-top: 2px;
+}
 
-  .main {
-    display: grid;
-    grid-template-columns: 380px 1fr;
-    gap: 0;
-    min-height: calc(100vh - 81px);
-  }
+.header-tagline {
+  margin-left: auto;
+  text-align: right;
+}
+.header-tagline .tag-main {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--rose);
+  letter-spacing: 0.06em;
+}
+.header-tagline .tag-sub {
+  font-size: 10px;
+  color: var(--light);
+  letter-spacing: 0.1em;
+}
+.badge-year {
+  background: linear-gradient(135deg, var(--rose), var(--mauve));
+  color: white;
+  font-size: 9px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.1em;
+  margin-left: 12px;
+}
 
-  .sidebar {
-    border-right: 1px solid var(--border);
-    padding: 28px;
-    overflow-y: auto;
-    background: var(--surface);
-  }
+/* ─── LAYOUT ─── */
+.main {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  min-height: calc(100vh - 89px);
+  position: relative; z-index: 1;
+}
 
-  .content {
-    padding: 28px;
-    overflow-y: auto;
-  }
+/* ─── SIDEBAR ─── */
+.sidebar {
+  background: var(--ivory);
+  border-right: 1px solid var(--border);
+  padding: 28px 24px;
+  overflow-y: auto;
+}
 
-  .section-title {
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
-    margin-bottom: 16px;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
+.sec-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 11px;
+  color: var(--rose);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.sec-title::before {
+  content: '';
+  width: 18px; height: 1px;
+  background: linear-gradient(90deg, var(--rose-lt), transparent);
+}
+.sec-title::after {
+  content: '';
+  flex: 1; height: 1px;
+  background: linear-gradient(90deg, var(--border), transparent);
+}
 
-  .form-group {
-    margin-bottom: 20px;
-  }
+.form-group { margin-bottom: 18px; }
 
-  label {
-    display: block;
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 6px;
-    letter-spacing: 0.05em;
-  }
+.form-label {
+  display: block;
+  font-size: 11px;
+  color: var(--mid);
+  margin-bottom: 7px;
+  letter-spacing: 0.06em;
+}
 
-  select, input[type="number"], input[type="range"] {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    outline: none;
-    transition: border-color 0.2s;
-    appearance: none;
-    -webkit-appearance: none;
-  }
-  select:focus, input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
-  }
+select, input[type="number"] {
+  width: 100%;
+  background: white;
+  border: 1px solid var(--border);
+  color: var(--charcoal);
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  outline: none;
+  appearance: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px var(--shadow);
+}
+select:focus, input:focus {
+  border-color: var(--rose-lt);
+  box-shadow: 0 0 0 3px rgba(201,120,138,0.12);
+}
+select option { background: white; }
 
-  input[type="range"] {
-    padding: 0;
-    height: 6px;
-    cursor: pointer;
-    border-radius: 3px;
-    accent-color: var(--accent);
-  }
+/* カスタムセレクト矢印 */
+.select-wrap { position: relative; }
+.select-wrap::after {
+  content: '❧';
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--rose-lt); font-size: 12px; pointer-events: none;
+}
 
-  .range-value {
-    font-family: 'DM Mono', monospace;
-    font-size: 20px;
-    font-weight: 500;
-    color: var(--accent);
-    text-align: center;
-    display: block;
-    margin-top: 8px;
-  }
+/* スライダー */
+.slider-group { margin-bottom: 18px; }
+.slider-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 8px;
+}
+.slider-header label { font-size: 11px; color: var(--mid); letter-spacing: 0.06em; }
+.slider-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 500; color: var(--rose);
+}
+.slider-val small { font-size: 13px; }
 
-  .addon-grid {
-    display: grid;
-    gap: 8px;
-  }
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%; height: 5px;
+  background: var(--border);
+  border-radius: 3px; border: none; padding: 0;
+  outline: none; cursor: pointer;
+  box-shadow: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  background: linear-gradient(135deg, var(--rose), var(--mauve));
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(201,120,138,0.35);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
 
-  .addon-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 14px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 12px;
-  }
-  .addon-item:hover { border-color: rgba(0,212,255,0.3); }
-  .addon-item.active {
-    border-color: var(--accent);
-    background: rgba(0,212,255,0.05);
-  }
+/* 工賃スライダー */
+.wage-wrap {
+  background: white; border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px;
+  box-shadow: 0 1px 6px var(--shadow);
+  margin-bottom: 20px;
+}
+.wage-tiers {
+  display: flex; justify-content: space-between;
+  margin-top: 8px;
+  font-size: 9px; color: var(--light); letter-spacing: -0.02em;
+}
+.wage-current {
+  text-align: center; margin-top: 10px;
+}
+.wage-amount {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; color: var(--gold);
+  display: block;
+}
+.wage-unit-note { font-size: 9px; color: var(--light); }
 
-  .addon-item input[type="checkbox"] {
-    width: auto;
-    accent-color: var(--accent);
-    margin: 0;
-  }
+/* 加算チェック */
+.addon-list { display: grid; gap: 7px; }
+.addon-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-size: 12px;
+  box-shadow: 0 1px 3px var(--shadow);
+}
+.addon-item:hover { border-color: var(--rose-lt); box-shadow: 0 2px 8px rgba(201,120,138,0.12); }
+.addon-item.on { border-color: var(--rose-lt); background: rgba(232,180,190,0.08); }
 
-  .addon-name { flex: 1; margin: 0 10px; }
-  .addon-unit {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--accent3);
-  }
+.addon-item input { display: none; }
+.addon-check {
+  width: 16px; height: 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  font-size: 9px;
+}
+.addon-item.on .addon-check {
+  background: linear-gradient(135deg, var(--rose), var(--mauve));
+  border-color: transparent;
+  color: white;
+}
+.addon-name { flex: 1; color: var(--charcoal); }
+.addon-pt {
+  font-size: 10px; color: var(--rose);
+  background: rgba(201,120,138,0.1);
+  padding: 2px 7px; border-radius: 10px;
+  white-space: nowrap;
+}
 
-  /* KPI Cards */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-bottom: 28px;
-  }
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: 22px 0;
+}
 
-  .kpi-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px;
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.2s;
-  }
-  .kpi-card:hover { transform: translateY(-2px); }
+/* ─── CONTENT ─── */
+.content { padding: 28px 32px; overflow-y: auto; }
 
-  .kpi-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-  }
-  .kpi-card.primary::before { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
-  .kpi-card.success::before { background: var(--accent3); }
-  .kpi-card.warn::before { background: var(--warn); }
+/* ─── KPI CARDS ─── */
+.kpi-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 26px; }
 
-  .kpi-label {
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.08em;
-    margin-bottom: 8px;
-  }
+.kpi-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px 20px 18px;
+  position: relative; overflow: hidden;
+  box-shadow: 0 2px 12px var(--shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--shadow); }
 
-  .kpi-value {
-    font-family: 'DM Mono', monospace;
-    font-size: 28px;
-    font-weight: 500;
-    line-height: 1;
-    margin-bottom: 6px;
-  }
-  .kpi-card.primary .kpi-value { color: var(--accent); }
-  .kpi-card.success .kpi-value { color: var(--accent3); }
-  .kpi-card.warn .kpi-value { color: var(--warn); }
+.kpi-card::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+}
+.kpi-card.rose::after { background: linear-gradient(90deg, var(--rose), var(--mauve)); }
+.kpi-card.sage::after { background: linear-gradient(90deg, var(--sage), var(--sage-lt)); }
+.kpi-card.gold::after { background: linear-gradient(90deg, var(--gold), var(--gold-lt)); }
 
-  .kpi-sub {
-    font-size: 11px;
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
-  }
+.kpi-petal {
+  position: absolute; top: -15px; right: -15px;
+  width: 70px; height: 70px; opacity: 0.07;
+  font-size: 60px; line-height: 1;
+}
 
-  .kpi-icon {
-    position: absolute;
-    top: 20px; right: 20px;
-    font-size: 28px;
-    opacity: 0.15;
-  }
+.kpi-label {
+  font-size: 10px; color: var(--light);
+  letter-spacing: 0.1em; margin-bottom: 8px;
+}
+.kpi-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px; font-weight: 500; line-height: 1;
+  margin-bottom: 6px;
+}
+.kpi-card.rose .kpi-value { color: var(--rose-dk); }
+.kpi-card.sage .kpi-value { color: var(--sage); }
+.kpi-card.gold .kpi-value { color: var(--gold); }
+.kpi-sub { font-size: 10px; color: var(--light); }
 
-  /* Charts */
-  .chart-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 28px;
-  }
+/* ─── INSIGHT BAR ─── */
+.insight-bar {
+  background: linear-gradient(135deg, rgba(201,120,138,0.06), rgba(184,154,174,0.06));
+  border: 1px solid rgba(201,120,138,0.2);
+  border-radius: 12px;
+  padding: 14px 20px;
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 24px;
+  font-size: 12px; color: var(--charcoal);
+}
+.insight-icon { font-size: 20px; flex-shrink: 0; }
+.insight-text strong { color: var(--rose-dk); }
 
-  .chart-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px;
-  }
+/* ─── SCENARIO ─── */
+.scene-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
 
-  .chart-title {
-    font-size: 13px;
-    font-weight: 500;
-    margin-bottom: 20px;
-    color: var(--text);
-  }
+.scene-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+  box-shadow: 0 1px 6px var(--shadow);
+  transition: box-shadow 0.2s;
+}
+.scene-card:hover { box-shadow: 0 4px 14px var(--shadow); }
+.scene-card.best { border-top: 2px solid var(--sage); }
+.scene-card.base { border-top: 2px solid var(--rose); }
+.scene-card.worst { border-top: 2px solid var(--gold-lt); }
 
-  /* Breakdown table */
-  .breakdown-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 16px;
-  }
+.scene-tag {
+  font-size: 9px; letter-spacing: 0.14em;
+  margin-bottom: 6px; font-weight: 500;
+}
+.scene-card.best .scene-tag { color: var(--sage); }
+.scene-card.base .scene-tag { color: var(--rose); }
+.scene-card.worst .scene-tag { color: var(--gold); }
 
-  .breakdown-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
-  .breakdown-table th {
-    text-align: left;
-    padding: 8px 12px;
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-    border-bottom: 1px solid var(--border);
-    font-family: 'DM Mono', monospace;
-  }
-  .breakdown-table td {
-    padding: 10px 12px;
-    border-bottom: 1px solid rgba(30,45,74,0.5);
-    font-family: 'DM Mono', monospace;
-  }
-  .breakdown-table tr:last-child td { border-bottom: none; }
-  .breakdown-table .total td {
-    font-weight: 700;
-    color: var(--accent);
-    border-top: 1px solid var(--border);
-    background: rgba(0,212,255,0.03);
-  }
-  .breakdown-table .name-col { 
-    font-family: 'Noto Sans JP', sans-serif;
-    font-size: 12px;
-  }
-  .val-col { text-align: right; }
-  .pct-col { text-align: right; color: var(--muted); font-size: 11px; }
+.scene-rate { font-size: 11px; color: var(--light); margin-bottom: 5px; }
+.scene-amt {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px; font-weight: 500;
+}
+.scene-card.best .scene-amt { color: var(--sage); }
+.scene-card.base .scene-amt { color: var(--rose-dk); }
+.scene-card.worst .scene-amt { color: var(--gold); }
+.scene-yr { font-size: 10px; color: var(--light); margin-top: 4px; }
 
-  /* Scenario section */
-  .scenario-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 28px;
-  }
+/* ─── CHARTS ─── */
+.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 22px; }
+.chart-card {
+  background: white; border: 1px solid var(--border);
+  border-radius: 16px; padding: 22px;
+  box-shadow: 0 1px 8px var(--shadow);
+}
+.chart-card-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 12px; color: var(--charcoal);
+  margin-bottom: 16px; letter-spacing: 0.04em;
+}
+.full-chart {
+  background: white; border: 1px solid var(--border);
+  border-radius: 16px; padding: 22px;
+  margin-bottom: 22px;
+  box-shadow: 0 1px 8px var(--shadow);
+}
 
-  .scenario-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-    text-align: center;
-  }
-  .scenario-card.best { border-color: var(--accent3); }
-  .scenario-card.base { border-color: var(--accent); }
-  .scenario-card.worst { border-color: var(--danger); }
+/* ─── 工賃インパクト ─── */
+.wage-impact-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  margin-bottom: 22px;
+}
+.impact-card {
+  background: white; border: 1px solid var(--border);
+  border-radius: 14px; padding: 18px;
+  box-shadow: 0 1px 6px var(--shadow);
+}
+.impact-label { font-size: 11px; color: var(--light); margin-bottom: 8px; letter-spacing: 0.05em; }
+.impact-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 500; color: var(--rose-dk);
+}
+.impact-val.up { color: var(--sage); }
 
-  .scenario-label {
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    margin-bottom: 8px;
-    font-family: 'DM Mono', monospace;
-  }
-  .scenario-card.best .scenario-label { color: var(--accent3); }
-  .scenario-card.base .scenario-label { color: var(--accent); }
-  .scenario-card.worst .scenario-label { color: var(--danger); }
+/* ─── BREAKDOWN ─── */
+.breakdown-card {
+  background: white; border: 1px solid var(--border);
+  border-radius: 16px; padding: 24px;
+  box-shadow: 0 1px 8px var(--shadow);
+  margin-bottom: 18px;
+}
+.bd-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 13px; color: var(--charcoal);
+  margin-bottom: 18px; letter-spacing: 0.04em;
+  display: flex; align-items: center; gap: 8px;
+}
+.bd-title::before { content: '✿'; font-size: 12px; color: var(--rose-lt); }
 
-  .scenario-rate {
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 4px;
-  }
-  .scenario-amount {
-    font-family: 'DM Mono', monospace;
-    font-size: 22px;
-    font-weight: 500;
-  }
-  .scenario-card.best .scenario-amount { color: var(--accent3); }
-  .scenario-card.base .scenario-amount { color: var(--accent); }
-  .scenario-card.worst .scenario-amount { color: var(--danger); }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th {
+  text-align: left; padding: 8px 12px;
+  font-size: 10px; color: var(--light);
+  letter-spacing: 0.08em; font-weight: 400;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(232,221,213,0.5);
+}
+tr:last-child td { border-bottom: none; }
+.bd-total td {
+  font-weight: 600; color: var(--rose-dk);
+  border-top: 1px solid var(--border);
+  background: rgba(201,120,138,0.03);
+}
+.nm { color: var(--charcoal); }
+.r { text-align: right; }
+.pct-col { text-align: right; color: var(--light); font-size: 10px; }
 
-  .scenario-year {
-    font-size: 11px;
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
-    margin-top: 4px;
-  }
+/* ─── 経営アドバイス ─── */
+.advice-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+.advice-card {
+  background: linear-gradient(135deg, rgba(201,120,138,0.04), rgba(184,154,174,0.04));
+  border: 1px solid rgba(201,120,138,0.18);
+  border-radius: 14px; padding: 18px;
+}
+.advice-icon { font-size: 20px; margin-bottom: 8px; }
+.advice-title { font-size: 12px; font-weight: 500; color: var(--rose-dk); margin-bottom: 6px; }
+.advice-body { font-size: 11px; color: var(--mid); line-height: 1.7; }
+.advice-highlight { color: var(--rose); font-weight: 600; }
 
-  .tip-box {
-    background: rgba(16,185,129,0.05);
-    border: 1px solid rgba(16,185,129,0.2);
-    border-radius: 12px;
-    padding: 16px 20px;
-    font-size: 12px;
-    color: var(--accent3);
-    margin-top: 16px;
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-  }
+/* ─── FOOTER ─── */
+footer {
+  text-align: center; padding: 20px;
+  font-size: 10px; color: var(--light);
+  letter-spacing: 0.1em; border-top: 1px solid var(--border);
+}
+footer span { color: var(--rose-lt); }
 
-  .tip-icon { font-size: 16px; flex-shrink: 0; }
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--cream); }
+::-webkit-scrollbar-thumb { background: var(--rose-lt); border-radius: 3px; }
 
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .kpi-grid, .chart-grid, .scenario-grid, .breakdown-card {
-    animation: fadeUp 0.4s ease both;
-  }
-
-  .divider { height: 1px; background: var(--border); margin: 24px 0; }
-
-  .full-chart-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 28px;
-  }
-
-  select option { background: var(--surface2); }
+/* ─── ANIMATIONS ─── */
+@keyframes bloom {
+  from { opacity: 0; transform: scale(0.96) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.kpi-row, .scene-row, .chart-grid, .full-chart, .breakdown-card, .advice-row {
+  animation: bloom 0.45s ease both;
+}
+.kpi-row  { animation-delay: 0.05s; }
+.scene-row { animation-delay: 0.1s; }
+.chart-grid { animation-delay: 0.15s; }
 </style>
 </head>
 <body>
 
+<!-- デコレーション -->
+<svg class="deco deco-tl" viewBox="0 0 260 260" fill="none">
+  <circle cx="80" cy="80" r="70" stroke="#c9788a" stroke-width="0.8" fill="none"/>
+  <circle cx="80" cy="80" r="45" stroke="#b89aae" stroke-width="0.5" fill="none"/>
+  <path d="M80 10 Q110 40 80 80 Q50 40 80 10Z" fill="#c9788a" opacity="0.3"/>
+  <path d="M80 150 Q110 120 80 80 Q50 120 80 150Z" fill="#c9788a" opacity="0.25"/>
+  <path d="M10 80 Q40 110 80 80 Q40 50 10 80Z" fill="#b89aae" opacity="0.25"/>
+  <path d="M150 80 Q120 110 80 80 Q120 50 150 80Z" fill="#b89aae" opacity="0.2"/>
+  <circle cx="80" cy="80" r="10" fill="#c9788a" opacity="0.4"/>
+</svg>
+<svg class="deco deco-br" viewBox="0 0 220 220" fill="none">
+  <circle cx="110" cy="110" r="90" stroke="#7a9e8b" stroke-width="0.8" fill="none"/>
+  <path d="M110 20 Q150 65 110 110 Q70 65 110 20Z" fill="#7a9e8b" opacity="0.3"/>
+  <path d="M110 200 Q150 155 110 110 Q70 155 110 200Z" fill="#7a9e8b" opacity="0.25"/>
+  <path d="M20 110 Q65 150 110 110 Q65 70 20 110Z" fill="#c8965a" opacity="0.22"/>
+  <path d="M200 110 Q155 150 110 110 Q155 70 200 110Z" fill="#c8965a" opacity="0.18"/>
+  <circle cx="110" cy="110" r="14" fill="#7a9e8b" opacity="0.35"/>
+</svg>
+
+<!-- HEADER -->
 <header class="header">
-  <div class="logo-icon">📊</div>
+  <div class="header-ornament">🌸</div>
   <div class="header-text">
-    <h1>就労継続支援A型 売上シミュレーター</h1>
-    <p>2024年度報酬改定対応 · REVENUE FORECAST SYSTEM</p>
+    <h1>就労継続支援B型 経営サポートシミュレーター</h1>
+    <p>2024年度報酬改定対応　·　工賃連動型報酬計算　·　経営者向け分析ツール</p>
   </div>
-  <span class="badge">2024 REVISED</span>
+  <div class="header-tagline">
+    <div class="tag-main">Empowering Women in Management</div>
+    <div class="tag-sub">
+      あなたの事業所の可能性を数字で見える化
+      <span class="badge-year">2024改定</span>
+    </div>
+  </div>
 </header>
 
 <div class="main">
-  <!-- SIDEBAR -->
+
+  <!-- ─── SIDEBAR ─── -->
   <aside class="sidebar">
 
-    <div class="section-title">基本設定</div>
+    <div class="sec-title">事業所の基本情報</div>
 
     <div class="form-group">
-      <label>事業所の定員数</label>
-      <select id="capacity" onchange="calc()">
-        <option value="20">20人以下</option>
-        <option value="40" selected>21〜40人</option>
-        <option value="60">41〜60人</option>
-        <option value="80">61〜80人</option>
-        <option value="81">81人以上</option>
-      </select>
+      <label class="form-label">定員規模</label>
+      <div class="select-wrap">
+        <select id="cap" onchange="calc()">
+          <option value="20">20人以下</option>
+          <option value="40" selected>21〜40人</option>
+          <option value="60">41〜60人</option>
+          <option value="80">61〜80人</option>
+          <option value="81">81人以上</option>
+        </select>
+      </div>
     </div>
 
     <div class="form-group">
-      <label>実際の定員人数</label>
-      <input type="number" id="actual_capacity" value="30" min="1" max="200" onchange="calc()">
+      <label class="form-label">実際の定員人数</label>
+      <input type="number" id="actual" value="30" min="1" max="200" onchange="calc()">
     </div>
 
     <div class="form-group">
-      <label>労働時間区分</label>
-      <select id="work_hours" onchange="calc()">
-        <option value="1">Ⅰ：7時間30分以上</option>
-        <option value="2" selected>Ⅱ：6時間以上7時間30分未満</option>
-        <option value="3">Ⅲ：4時間以上6時間未満</option>
-        <option value="4">Ⅳ：4時間未満</option>
-      </select>
+      <label class="form-label">地域区分（1単位の単価）</label>
+      <div class="select-wrap">
+        <select id="region" onchange="calc()">
+          <option value="11.40">1級地（11.40円）— 東京23区等</option>
+          <option value="11.12">2級地（11.12円）</option>
+          <option value="11.05">3級地（11.05円）</option>
+          <option value="10.84">4級地（10.84円）</option>
+          <option value="10.70">5級地（10.70円）</option>
+          <option value="10.42">6級地（10.42円）</option>
+          <option value="10.21">7級地（10.21円）</option>
+          <option value="10.00" selected>その他（10.00円）</option>
+        </select>
+      </div>
     </div>
 
     <div class="form-group">
-      <label>地域区分（1単位の単価）</label>
-      <select id="region" onchange="calc()">
-        <option value="11.40">1級地（11.40円）— 東京23区等</option>
-        <option value="11.12">2級地（11.12円）</option>
-        <option value="11.05">3級地（11.05円）</option>
-        <option value="10.84">4級地（10.84円）</option>
-        <option value="10.70">5級地（10.70円）</option>
-        <option value="10.42">6級地（10.42円）</option>
-        <option value="10.21">7級地（10.21円）</option>
-        <option value="10.00" selected>その他（10.00円）</option>
-      </select>
+      <label class="form-label">月間営業日数</label>
+      <input type="number" id="days" value="22" min="15" max="27" onchange="calc()">
     </div>
 
-    <div class="form-group">
-      <label>月間営業日数</label>
-      <input type="number" id="working_days" value="22" min="15" max="27" onchange="calc()">
-    </div>
-
-    <div class="form-group">
-      <label>平均利用率：<span id="rate_display">85</span>%</label>
-      <input type="range" id="utilization" min="50" max="100" value="85" oninput="document.getElementById('rate_display').textContent=this.value; calc()">
+    <div class="slider-group">
+      <div class="slider-header">
+        <label>平均利用率</label>
+        <div><span class="slider-val" id="rate_disp">82</span><span class="slider-val" style="font-size:13px">%</span></div>
+      </div>
+      <input type="range" id="util" min="50" max="100" value="82"
+        oninput="document.getElementById('rate_disp').textContent=this.value; calc()">
     </div>
 
     <div class="divider"></div>
-    <div class="section-title">加算設定</div>
+    <div class="sec-title">平均工賃月額（目標）</div>
 
-    <div class="addon-grid">
-      <label class="addon-item" id="lbl_prof">
-        <input type="checkbox" id="addon_prof1" onchange="toggleAddon('lbl_prof',this);calc()">
+    <div class="wage-wrap">
+      <input type="range" id="wage_sl" min="0" max="7" value="3"
+        oninput="syncWage(this.value); calc()">
+      <div class="wage-tiers">
+        <span>〜9,999</span><span>〜14,999</span><span>〜19,999</span><span>〜24,999</span>
+        <span>〜29,999</span><span>〜34,999</span><span>〜44,999</span><span>45,000+</span>
+      </div>
+      <div class="wage-current">
+        <span class="wage-amount" id="wage_lbl">〜24,999円</span>
+        <span class="wage-unit-note" id="wage_unit">— 単位/日</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="sec-title">加算設定</div>
+
+    <div class="addon-list">
+      <label class="addon-item" id="lb_p1" onclick="toggleAddon('lb_p1','add_p1')">
+        <input type="checkbox" id="add_p1">
+        <div class="addon-check" id="ck_p1"></div>
         <span class="addon-name">福祉専門職員配置加算Ⅰ</span>
-        <span class="addon-unit">+15単位/日</span>
+        <span class="addon-pt">+15単位/日</span>
       </label>
-      <label class="addon-item" id="lbl_prof2">
-        <input type="checkbox" id="addon_prof2" onchange="toggleAddon('lbl_prof2',this);calc()">
+      <label class="addon-item" id="lb_p2" onclick="toggleAddon('lb_p2','add_p2')">
+        <input type="checkbox" id="add_p2">
+        <div class="addon-check" id="ck_p2"></div>
         <span class="addon-name">福祉専門職員配置加算Ⅱ</span>
-        <span class="addon-unit">+10単位/日</span>
+        <span class="addon-pt">+10単位/日</span>
       </label>
-      <label class="addon-item" id="lbl_trans">
-        <input type="checkbox" id="addon_trans" onchange="toggleAddon('lbl_trans',this);calc()">
-        <span class="addon-name">就労移行支援体制加算</span>
-        <span class="addon-unit">+22単位/日</span>
-      </label>
-      <label class="addon-item" id="lbl_med">
-        <input type="checkbox" id="addon_med" onchange="toggleAddon('lbl_med',this);calc()">
-        <span class="addon-name">医療連携体制加算Ⅰ</span>
-        <span class="addon-unit">+32単位/日</span>
-      </label>
-      <label class="addon-item" id="lbl_peer">
-        <input type="checkbox" id="addon_peer" onchange="toggleAddon('lbl_peer',this);calc()">
-        <span class="addon-name">ピアサポート実施加算</span>
-        <span class="addon-unit">+100単位/月</span>
-      </label>
-      <label class="addon-item" id="lbl_absent">
-        <input type="checkbox" id="addon_absent" checked onchange="toggleAddon('lbl_absent',this);calc()">
+      <label class="addon-item on" id="lb_ab" onclick="toggleAddon('lb_ab','add_ab')">
+        <input type="checkbox" id="add_ab" checked>
+        <div class="addon-check" id="ck_ab" style="background:linear-gradient(135deg,#c9788a,#b89aae);border-color:transparent;color:white">✓</div>
         <span class="addon-name">欠席時対応加算</span>
-        <span class="addon-unit">+94単位×4回</span>
+        <span class="addon-pt">+94単位×4回</span>
+      </label>
+      <label class="addon-item" id="lb_pe" onclick="toggleAddon('lb_pe','add_pe')">
+        <input type="checkbox" id="add_pe">
+        <div class="addon-check" id="ck_pe"></div>
+        <span class="addon-name">ピアサポート実施加算</span>
+        <span class="addon-pt">+100単位/月</span>
+      </label>
+      <label class="addon-item" id="lb_wg" onclick="toggleAddon('lb_wg','add_wg')">
+        <input type="checkbox" id="add_wg">
+        <div class="addon-check" id="ck_wg"></div>
+        <span class="addon-name">工賃向上計画支援等加算</span>
+        <span class="addon-pt">+21単位/日</span>
+      </label>
+      <label class="addon-item" id="lb_mv" onclick="toggleAddon('lb_mv','add_mv')">
+        <input type="checkbox" id="add_mv">
+        <div class="addon-check" id="ck_mv"></div>
+        <span class="addon-name">就労移行連携加算</span>
+        <span class="addon-pt">+500単位/月</span>
+      </label>
+      <label class="addon-item" id="lb_md" onclick="toggleAddon('lb_md','add_md')">
+        <input type="checkbox" id="add_md">
+        <div class="addon-check" id="ck_md"></div>
+        <span class="addon-name">医療連携体制加算Ⅰ</span>
+        <span class="addon-pt">+32単位/日</span>
       </label>
     </div>
 
     <div class="divider"></div>
-    <div class="section-title">処遇改善加算</div>
+    <div class="sec-title">処遇改善加算</div>
 
     <div class="form-group">
-      <label>処遇改善加算区分</label>
-      <select id="treatment" onchange="calc()">
-        <option value="0">なし（0%）</option>
-        <option value="0.245" selected>加算Ⅰ（24.5%）</option>
-        <option value="0.224">加算Ⅱ（22.4%）</option>
-        <option value="0.178">加算Ⅲ（17.8%）</option>
-        <option value="0.145">加算Ⅳ（14.5%）</option>
-      </select>
+      <div class="select-wrap">
+        <select id="treat" onchange="calc()">
+          <option value="0">なし（0%）</option>
+          <option value="0.282" selected>加算Ⅰ（28.2%）</option>
+          <option value="0.258">加算Ⅱ（25.8%）</option>
+          <option value="0.205">加算Ⅲ（20.5%）</option>
+          <option value="0.167">加算Ⅳ（16.7%）</option>
+        </select>
+      </div>
     </div>
 
   </aside>
 
-  <!-- MAIN CONTENT -->
+  <!-- ─── CONTENT ─── -->
   <main class="content">
 
-    <!-- KPI Cards -->
-    <div class="kpi-grid">
-      <div class="kpi-card primary">
+    <!-- KPI -->
+    <div class="kpi-row">
+      <div class="kpi-card rose">
+        <div class="kpi-petal">🌸</div>
         <div class="kpi-label">月間売上（予測）</div>
-        <div class="kpi-value" id="kpi_month">—</div>
-        <div class="kpi-sub" id="kpi_month_sub">—</div>
-        <div class="kpi-icon">💴</div>
+        <div class="kpi-value" id="kpi_m">—</div>
+        <div class="kpi-sub" id="kpi_m_sub">—</div>
       </div>
-      <div class="kpi-card success">
+      <div class="kpi-card sage">
+        <div class="kpi-petal">🌿</div>
         <div class="kpi-label">年間売上（予測）</div>
-        <div class="kpi-value" id="kpi_year">—</div>
-        <div class="kpi-sub" id="kpi_year_sub">—</div>
-        <div class="kpi-icon">📈</div>
+        <div class="kpi-value" id="kpi_y">—</div>
+        <div class="kpi-sub" id="kpi_y_sub">—</div>
       </div>
-      <div class="kpi-card warn">
+      <div class="kpi-card gold">
+        <div class="kpi-petal">✨</div>
         <div class="kpi-label">1人あたり月間単価</div>
-        <div class="kpi-value" id="kpi_per_person">—</div>
-        <div class="kpi-sub" id="kpi_base_unit">—</div>
-        <div class="kpi-icon">👤</div>
+        <div class="kpi-value" id="kpi_pp">—</div>
+        <div class="kpi-sub" id="kpi_pp_sub">—</div>
       </div>
     </div>
 
-    <!-- Scenario -->
-    <div class="section-title">利用率シナリオ比較（月間）</div>
-    <div class="scenario-grid">
-      <div class="scenario-card best">
-        <div class="scenario-label">▲ BEST CASE</div>
-        <div class="scenario-rate" id="sc_best_rate">—</div>
-        <div class="scenario-amount" id="sc_best">—</div>
-        <div class="scenario-year" id="sc_best_year">—</div>
+    <!-- インサイトバー -->
+    <div class="insight-bar">
+      <span class="insight-icon">💡</span>
+      <div class="insight-text" id="insight_text">計算中...</div>
+    </div>
+
+    <!-- 工賃インパクト -->
+    <div class="wage-impact-grid">
+      <div class="impact-card">
+        <div class="impact-label">現在の工賃区分での月間売上</div>
+        <div class="impact-val" id="imp_cur">—</div>
       </div>
-      <div class="scenario-card base">
-        <div class="scenario-label">◆ BASE CASE</div>
-        <div class="scenario-rate" id="sc_base_rate">—</div>
-        <div class="scenario-amount" id="sc_base">—</div>
-        <div class="scenario-year" id="sc_base_year">—</div>
+      <div class="impact-card">
+        <div class="impact-label">工賃を1段階アップした場合の増収（月）</div>
+        <div class="impact-val up" id="imp_diff">—</div>
       </div>
-      <div class="scenario-card worst">
-        <div class="scenario-label">▼ WORST CASE</div>
-        <div class="scenario-rate" id="sc_worst_rate">—</div>
-        <div class="scenario-amount" id="sc_worst">—</div>
-        <div class="scenario-year" id="sc_worst_year">—</div>
+    </div>
+
+    <!-- シナリオ -->
+    <div class="scene-row">
+      <div class="scene-card best">
+        <div class="scene-tag">▲ BEST — 利用率 +10%</div>
+        <div class="scene-rate" id="sc_b_r">—</div>
+        <div class="scene-amt" id="sc_b_a">—</div>
+        <div class="scene-yr" id="sc_b_y">—</div>
+      </div>
+      <div class="scene-card base">
+        <div class="scene-tag">◆ BASE — 現在の設定</div>
+        <div class="scene-rate" id="sc_m_r">—</div>
+        <div class="scene-amt" id="sc_m_a">—</div>
+        <div class="scene-yr" id="sc_m_y">—</div>
+      </div>
+      <div class="scene-card worst">
+        <div class="scene-tag">▼ WORST — 利用率 -10%</div>
+        <div class="scene-rate" id="sc_w_r">—</div>
+        <div class="scene-amt" id="sc_w_a">—</div>
+        <div class="scene-yr" id="sc_w_y">—</div>
       </div>
     </div>
 
     <!-- Charts -->
     <div class="chart-grid">
       <div class="chart-card">
-        <div class="chart-title">利用率別 月間売上シミュレーション</div>
-        <canvas id="chartLine" height="180"></canvas>
+        <div class="chart-card-title">✿ 利用率別 月間売上シミュレーション</div>
+        <canvas id="cLine" height="190"></canvas>
       </div>
       <div class="chart-card">
-        <div class="chart-title">売上内訳（月間）</div>
-        <canvas id="chartDoughnut" height="180"></canvas>
+        <div class="chart-card-title">✿ 売上内訳（月間）</div>
+        <canvas id="cDonut" height="190"></canvas>
       </div>
     </div>
 
-    <!-- 12ヶ月見込み -->
-    <div class="full-chart-card">
-      <div class="chart-title">12ヶ月間 売上見込み（利用率の月別変動シミュレーション）</div>
-      <canvas id="chartBar" height="100"></canvas>
+    <!-- 12ヶ月 -->
+    <div class="full-chart">
+      <div class="chart-card-title">✿ 12ヶ月間 売上見込み（季節変動シミュレーション）</div>
+      <canvas id="cBar" height="95"></canvas>
     </div>
 
     <!-- Breakdown -->
     <div class="breakdown-card">
-      <div class="section-title" style="margin-bottom:20px">報酬内訳（月間）</div>
-      <table class="breakdown-table" id="breakdown_table">
+      <div class="bd-title">報酬内訳（月間）</div>
+      <table>
         <thead>
           <tr>
             <th>項目</th>
-            <th class="val-col">単位数</th>
-            <th class="val-col">金額（円）</th>
-            <th class="pct-col">構成比</th>
+            <th class="r">単位数</th>
+            <th class="r">金額（円）</th>
+            <th class="r">構成比</th>
           </tr>
         </thead>
-        <tbody id="breakdown_body"></tbody>
+        <tbody id="bd_body"></tbody>
       </table>
     </div>
 
-    <div class="tip-box">
-      <span class="tip-icon">💡</span>
-      <div>
-        <strong>経営のヒント：</strong>
-        利用率1%向上で月間約<span id="tip_amount">—</span>の増収になります。
-        加算の積極的な取得と、欠席時対応の適切な記録が売上最大化のポイントです。
+    <!-- 経営アドバイス -->
+    <div class="advice-row">
+      <div class="advice-card">
+        <div class="advice-icon">🌸</div>
+        <div class="advice-title">工賃アップが経営を変える</div>
+        <div class="advice-body">
+          B型の報酬は<strong>平均工賃月額</strong>に直結します。
+          工賃を1段階アップするだけで
+          <span class="advice-highlight" id="adv_wage">—</span>の増収。
+          利用者の工賃向上と事業所収益が同時に実現します。
+        </div>
+      </div>
+      <div class="advice-card">
+        <div class="advice-icon">🌿</div>
+        <div class="advice-title">利用率1%が生む違い</div>
+        <div class="advice-body">
+          現在の設定で利用率を1%上げると
+          <span class="advice-highlight" id="adv_rate">—</span>／月の増収。
+          欠席時対応加算の適切な記録と
+          丁寧なケアが安定利用につながります。
+        </div>
       </div>
     </div>
+
+    <footer>
+      <span>✿</span>　就労継続支援B型 経営サポートシミュレーター　·　2024年度報酬改定対応　·　数値はすべて概算です　<span>✿</span>
+    </footer>
 
   </main>
 </div>
 
 <script>
-// 基本報酬単位数テーブル（2024年改定）
-const BASE_UNITS = {
-  20: { 1: 759, 2: 716, 3: 618, 4: 406 },
-  40: { 1: 724, 2: 682, 3: 590, 4: 388 },
-  60: { 1: 703, 2: 663, 3: 574, 4: 378 },
-  80: { 1: 682, 2: 644, 3: 558, 4: 367 },
-  81: { 1: 665, 2: 628, 3: 545, 4: 358 },
+const WAGE_LABELS = [
+  '〜9,999円','10,000〜14,999円','15,000〜19,999円','20,000〜24,999円',
+  '25,000〜29,999円','30,000〜34,999円','35,000〜44,999円','45,000円以上'
+];
+
+const BASE = {
+  20: [653,663,678,692,707,717,736,746],
+  40: [622,633,646,659,674,684,701,711],
+  60: [604,614,627,639,653,663,680,690],
+  80: [587,597,609,621,635,645,661,671],
+  81: [573,583,595,607,620,630,645,655],
 };
 
 const MONTHS = ['4月','5月','6月','7月','8月','9月','10月','11月','12月','1月','2月','3月'];
 
-let lineChart, donutChart, barChart;
+let lChart, dChart, bChart;
 
-function toggleAddon(id, chk) {
-  document.getElementById(id).classList.toggle('active', chk.checked);
+function syncWage(v) {
+  document.getElementById('wage_lbl').textContent = WAGE_LABELS[v];
+  const cap = parseInt(document.getElementById('cap').value);
+  document.getElementById('wage_unit').textContent = BASE[cap][v] + ' 単位/日（基本）';
 }
 
-function fmt(n) {
-  if (n >= 10000000) return (n/10000000).toFixed(1)+'千万';
-  if (n >= 1000000) return (n/1000000).toFixed(1)+'百万';
-  return n.toLocaleString('ja-JP');
+function toggleAddon(lblId, chkId) {
+  const chk = document.getElementById(chkId);
+  const lbl = document.getElementById(lblId);
+  const ck  = document.getElementById('ck_' + chkId.replace('add_',''));
+  chk.checked = !chk.checked;
+  lbl.classList.toggle('on', chk.checked);
+  if (chk.checked) {
+    ck.style.background = 'linear-gradient(135deg,#c9788a,#b89aae)';
+    ck.style.borderColor = 'transparent';
+    ck.style.color = 'white';
+    ck.textContent = '✓';
+  } else {
+    ck.style.background = '';
+    ck.style.borderColor = '';
+    ck.style.color = '';
+    ck.textContent = '';
+  }
+  calc();
 }
 
-function fmtFull(n) {
-  return n.toLocaleString('ja-JP') + '円';
-}
-
-function calcRevenue(utilRate) {
-  const cap = parseInt(document.getElementById('capacity').value);
-  const actualCap = parseInt(document.getElementById('actual_capacity').value) || 30;
-  const wh = parseInt(document.getElementById('work_hours').value);
-  const region = parseFloat(document.getElementById('region').value);
-  const days = parseInt(document.getElementById('working_days').value) || 22;
-  const treatment = parseFloat(document.getElementById('treatment').value) || 0;
-
-  // 基本報酬
-  const baseUnit = BASE_UNITS[cap][wh];
-  const users = Math.floor(actualCap * utilRate / 100);
-
-  // 月間基本単位
-  let baseUnits = baseUnit * users * days;
-
-  // 加算（日単位）
-  let addonUnitsPerDay = 0;
-  if (document.getElementById('addon_prof1').checked) addonUnitsPerDay += 15;
-  if (document.getElementById('addon_prof2').checked) addonUnitsPerDay += 10;
-  if (document.getElementById('addon_trans').checked) addonUnitsPerDay += 22;
-  if (document.getElementById('addon_med').checked) addonUnitsPerDay += 32;
-
-  const addonDailyTotal = addonUnitsPerDay * users * days;
-
-  // 加算（月単位）
-  let addonMonthUnits = 0;
-  if (document.getElementById('addon_peer').checked) addonMonthUnits += 100 * users;
-  if (document.getElementById('addon_absent').checked) addonMonthUnits += 94 * 4; // 月4回上限
-
-  const subtotalUnits = baseUnits + addonDailyTotal + addonMonthUnits;
-
-  // 処遇改善加算（基本報酬＋日常加算の合計に対して）
-  const treatmentUnits = Math.floor((baseUnits + addonDailyTotal) * treatment);
-
-  const totalUnits = subtotalUnits + treatmentUnits;
-  const totalYen = Math.floor(totalUnits * region);
-
+function getP() {
   return {
-    users, baseUnit, baseUnits, addonDailyTotal, addonMonthUnits,
-    treatmentUnits, totalUnits, totalYen,
-    region, days, actualCap
+    cap: parseInt(document.getElementById('cap').value),
+    actual: parseInt(document.getElementById('actual').value)||30,
+    region: parseFloat(document.getElementById('region').value),
+    days: parseInt(document.getElementById('days').value)||22,
+    util: parseInt(document.getElementById('util').value),
+    wi: parseInt(document.getElementById('wage_sl').value),
+    treat: parseFloat(document.getElementById('treat').value)||0,
   };
 }
 
+function revenue(p, utilOv) {
+  const u = utilOv !== undefined ? utilOv : p.util;
+  const users = Math.floor(p.actual * u / 100);
+  const bu = BASE[p.cap][p.wi];
+  const baseU = bu * users * p.days;
+  let dayAdd = 0;
+  if (document.getElementById('add_p1').checked) dayAdd += 15;
+  if (document.getElementById('add_p2').checked) dayAdd += 10;
+  if (document.getElementById('add_wg').checked) dayAdd += 21;
+  if (document.getElementById('add_md').checked) dayAdd += 32;
+  const dayTotal = dayAdd * users * p.days;
+  let monAdd = 0;
+  if (document.getElementById('add_ab').checked) monAdd += 94*4;
+  if (document.getElementById('add_pe').checked) monAdd += 100*users;
+  if (document.getElementById('add_mv').checked) monAdd += 500;
+  const treatU = Math.floor((baseU + dayTotal) * p.treat);
+  const totalU = baseU + dayTotal + monAdd + treatU;
+  const yen = Math.floor(totalU * p.region);
+  return { users, bu, baseU, dayTotal, monAdd, treatU, totalU, yen };
+}
+
+function fmt(n) {
+  if (n >= 10000000) return (n/10000000).toFixed(1) + '千万';
+  if (n >= 1000000)  return (n/1000000).toFixed(1) + '百万';
+  return n.toLocaleString('ja-JP');
+}
+
 function calc() {
-  const utilRate = parseInt(document.getElementById('utilization').value);
-  const r = calcRevenue(utilRate);
+  const p = getP();
+  syncWage(p.wi);
+  const r = revenue(p);
 
-  // KPI
-  document.getElementById('kpi_month').textContent = '¥' + fmt(r.totalYen);
-  document.getElementById('kpi_month_sub').textContent = r.users + '人利用 / ' + r.days + '日';
-  document.getElementById('kpi_year').textContent = '¥' + fmt(r.totalYen * 12);
-  document.getElementById('kpi_year_sub').textContent = '月間×12ヶ月（概算）';
-  const perPerson = r.users > 0 ? Math.floor(r.totalYen / r.users) : 0;
-  document.getElementById('kpi_per_person').textContent = '¥' + fmt(perPerson);
-  document.getElementById('kpi_base_unit').textContent = '基本' + r.baseUnit + '単位/日';
+  document.getElementById('kpi_m').textContent = '¥' + fmt(r.yen);
+  document.getElementById('kpi_m_sub').textContent = r.users + '人利用 / ' + p.days + '日';
+  document.getElementById('kpi_y').textContent = '¥' + fmt(r.yen * 12);
+  document.getElementById('kpi_y_sub').textContent = '月間 × 12ヶ月（概算）';
+  const pp = r.users > 0 ? Math.floor(r.yen / r.users) : 0;
+  document.getElementById('kpi_pp').textContent = '¥' + fmt(pp);
+  document.getElementById('kpi_pp_sub').textContent = '基本 ' + r.bu + ' 単位/日';
 
-  // Scenarios
-  const best = calcRevenue(Math.min(100, utilRate + 10));
-  const worst = calcRevenue(Math.max(50, utilRate - 10));
-  document.getElementById('sc_best_rate').textContent = '利用率 ' + Math.min(100, utilRate+10) + '%';
-  document.getElementById('sc_best').textContent = '¥' + fmt(best.totalYen);
-  document.getElementById('sc_best_year').textContent = '年間：¥' + fmt(best.totalYen*12);
-  document.getElementById('sc_base_rate').textContent = '利用率 ' + utilRate + '%（現在）';
-  document.getElementById('sc_base').textContent = '¥' + fmt(r.totalYen);
-  document.getElementById('sc_base_year').textContent = '年間：¥' + fmt(r.totalYen*12);
-  document.getElementById('sc_worst_rate').textContent = '利用率 ' + Math.max(50, utilRate-10) + '%';
-  document.getElementById('sc_worst').textContent = '¥' + fmt(worst.totalYen);
-  document.getElementById('sc_worst_year').textContent = '年間：¥' + fmt(worst.totalYen*12);
+  // インサイト
+  const diff1 = revenue(p, Math.min(100, p.util+1)).yen - r.yen;
+  document.getElementById('insight_text').innerHTML =
+    `利用率1%アップで月間 <strong>¥${diff1.toLocaleString()}</strong> の増収。` +
+    `現在の工賃区分（${WAGE_LABELS[p.wi]}）での月間売上は <strong>¥${r.yen.toLocaleString()}</strong>。`;
 
-  // Tip
-  const diff1 = calcRevenue(Math.min(100, utilRate+1)).totalYen - r.totalYen;
-  document.getElementById('tip_amount').textContent = fmtFull(diff1);
+  // 工賃インパクト
+  document.getElementById('imp_cur').textContent = '¥' + r.yen.toLocaleString();
+  if (p.wi < 7) {
+    const p2 = {...p, wi: p.wi+1};
+    const r2 = revenue(p2);
+    const d = r2.yen - r.yen;
+    document.getElementById('imp_diff').textContent = '+¥' + d.toLocaleString();
+    document.getElementById('adv_wage').textContent = '月間+¥' + d.toLocaleString();
+  } else {
+    document.getElementById('imp_diff').textContent = '最高区分です 🌸';
+    document.getElementById('adv_wage').textContent = '最高工賃区分を達成済み';
+  }
+  document.getElementById('adv_rate').textContent = '¥' + diff1.toLocaleString();
 
-  // Breakdown table
-  const total = r.totalYen;
-  const rows = [
-    { name: '基本報酬', units: r.baseUnits, yen: Math.floor(r.baseUnits * r.region) },
-    { name: '加算合計（日単位）', units: r.addonDailyTotal, yen: Math.floor(r.addonDailyTotal * r.region) },
-    { name: '加算合計（月単位）', units: r.addonMonthUnits, yen: Math.floor(r.addonMonthUnits * r.region) },
-    { name: '処遇改善加算', units: r.treatmentUnits, yen: Math.floor(r.treatmentUnits * r.region) },
-  ];
-  const tbody = document.getElementById('breakdown_body');
-  tbody.innerHTML = '';
-  rows.forEach(row => {
-    if (row.units === 0) return;
-    const pct = total > 0 ? (row.yen / total * 100).toFixed(1) : 0;
-    tbody.innerHTML += `<tr>
-      <td class="name-col">${row.name}</td>
-      <td class="val-col">${row.units.toLocaleString()}</td>
-      <td class="val-col">${row.yen.toLocaleString()}</td>
+  // シナリオ
+  const best  = revenue(p, Math.min(100, p.util+10));
+  const worst = revenue(p, Math.max(50,  p.util-10));
+  document.getElementById('sc_b_r').textContent = '利用率 ' + Math.min(100,p.util+10) + '%';
+  document.getElementById('sc_b_a').textContent = '¥' + fmt(best.yen);
+  document.getElementById('sc_b_y').textContent = '年間：¥' + fmt(best.yen*12);
+  document.getElementById('sc_m_r').textContent = '利用率 ' + p.util + '%（現在）';
+  document.getElementById('sc_m_a').textContent = '¥' + fmt(r.yen);
+  document.getElementById('sc_m_y').textContent = '年間：¥' + fmt(r.yen*12);
+  document.getElementById('sc_w_r').textContent = '利用率 ' + Math.max(50,p.util-10) + '%';
+  document.getElementById('sc_w_a').textContent = '¥' + fmt(worst.yen);
+  document.getElementById('sc_w_y').textContent = '年間：¥' + fmt(worst.yen*12);
+
+  // Breakdown
+  const items = [
+    {name:'基本報酬', u: r.baseU},
+    {name:'加算（日次）', u: r.dayTotal},
+    {name:'加算（月次）', u: r.monAdd},
+    {name:'処遇改善加算', u: r.treatU},
+  ].filter(i => i.u > 0);
+  const bdy = document.getElementById('bd_body');
+  bdy.innerHTML = '';
+  items.forEach(i => {
+    const y = Math.floor(i.u * p.region);
+    const pct = r.yen > 0 ? (y/r.yen*100).toFixed(1) : 0;
+    bdy.innerHTML += `<tr>
+      <td class="nm">${i.name}</td>
+      <td class="r">${i.u.toLocaleString()}</td>
+      <td class="r">${y.toLocaleString()}</td>
       <td class="pct-col">${pct}%</td>
     </tr>`;
   });
-  tbody.innerHTML += `<tr class="total">
-    <td class="name-col">合計</td>
-    <td class="val-col">${r.totalUnits.toLocaleString()}</td>
-    <td class="val-col">${r.totalYen.toLocaleString()}</td>
+  bdy.innerHTML += `<tr class="bd-total">
+    <td class="nm">合計</td>
+    <td class="r">${r.totalU.toLocaleString()}</td>
+    <td class="r">${r.yen.toLocaleString()}</td>
     <td class="pct-col">100%</td>
   </tr>`;
 
-  // Charts
-  updateCharts(utilRate, r);
+  updateCharts(p, r);
 }
 
-function updateCharts(currentRate, r) {
-  // Line chart: 利用率50〜100%
-  const rates = [];
-  const amounts = [];
-  for (let rate = 50; rate <= 100; rate += 5) {
-    rates.push(rate + '%');
-    amounts.push(calcRevenue(rate).totalYen);
-  }
+function updateCharts(p, r) {
+  const ROSE   = 'rgba(201,120,138,';
+  const SAGE   = 'rgba(122,158,139,';
+  const GOLD   = 'rgba(200,150,90,';
+  const MAUVE  = 'rgba(184,154,174,';
 
-  if (lineChart) lineChart.destroy();
-  lineChart = new Chart(document.getElementById('chartLine'), {
-    type: 'line',
-    data: {
-      labels: rates,
-      datasets: [{
-        label: '月間売上',
-        data: amounts,
-        borderColor: '#00d4ff',
-        backgroundColor: 'rgba(0,212,255,0.1)',
-        fill: true,
-        tension: 0.4,
-        pointBackgroundColor: amounts.map((_, i) => {
-          const rate = 50 + i * 5;
-          return rate === currentRate ? '#f59e0b' : '#00d4ff';
-        }),
-        pointRadius: amounts.map((_, i) => {
-          const rate = 50 + i * 5;
-          return rate === currentRate ? 8 : 3;
-        }),
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => '¥' + ctx.raw.toLocaleString('ja-JP')
-          }
-        }
-      },
-      scales: {
-        y: {
-          ticks: {
-            color: '#64748b',
-            callback: v => '¥' + (v/10000).toFixed(0) + '万'
-          },
-          grid: { color: 'rgba(30,45,74,0.5)' }
-        },
-        x: {
-          ticks: { color: '#64748b' },
-          grid: { color: 'rgba(30,45,74,0.3)' }
-        }
+  // Line
+  const rates=[], amts=[];
+  for (let rt=50; rt<=100; rt+=5) { rates.push(rt+'%'); amts.push(revenue(p,rt).yen); }
+  if (lChart) lChart.destroy();
+  lChart = new Chart(document.getElementById('cLine'), {
+    type:'line',
+    data:{ labels:rates, datasets:[{
+      data:amts,
+      borderColor: ROSE+'1)',
+      backgroundColor: ROSE+'0.08)',
+      fill:true, tension:0.45,
+      pointBackgroundColor: amts.map((_,i)=>{ const rt=50+i*5; return rt===p.util? ROSE+'1)':ROSE+'0.5)'; }),
+      pointRadius: amts.map((_,i)=>{ const rt=50+i*5; return rt===p.util?8:3; }),
+      pointBorderColor: 'white',
+      pointBorderWidth: amts.map((_,i)=>{ const rt=50+i*5; return rt===p.util?2:0; }),
+    }]},
+    options:{
+      responsive:true,
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>'¥'+c.raw.toLocaleString('ja-JP')}} },
+      scales:{
+        y:{ ticks:{color:'#b0a5a5',callback:v=>'¥'+(v/10000).toFixed(0)+'万'}, grid:{color:'rgba(232,221,213,0.5)'} },
+        x:{ ticks:{color:'#b0a5a5'}, grid:{color:'rgba(232,221,213,0.3)'} }
       }
     }
   });
 
-  // Doughnut
-  const baseYen = Math.floor(r.baseUnits * r.region);
-  const addonYen = Math.floor((r.addonDailyTotal + r.addonMonthUnits) * r.region);
-  const treatYen = Math.floor(r.treatmentUnits * r.region);
-  const donutData = [baseYen, addonYen, treatYen].filter(v => v > 0);
-  const donutLabels = ['基本報酬', '各種加算', '処遇改善加算'].filter((_, i) => [baseYen, addonYen, treatYen][i] > 0);
-
-  if (donutChart) donutChart.destroy();
-  donutChart = new Chart(document.getElementById('chartDoughnut'), {
-    type: 'doughnut',
-    data: {
-      labels: donutLabels,
-      datasets: [{
-        data: donutData,
-        backgroundColor: ['#00d4ff', '#7c3aed', '#10b981'],
-        borderColor: '#111620',
-        borderWidth: 3,
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { color: '#94a3b8', font: { size: 11 } }
-        },
-        tooltip: {
-          callbacks: {
-            label: ctx => ctx.label + ': ¥' + ctx.raw.toLocaleString('ja-JP')
-          }
-        }
-      }
-    }
+  // Donut
+  const bY = Math.floor(r.baseU*p.region);
+  const aY = Math.floor((r.dayTotal+r.monAdd)*p.region);
+  const tY = Math.floor(r.treatU*p.region);
+  const ds=[],lbls=[];
+  if(bY>0){ds.push(bY);lbls.push('基本報酬');}
+  if(aY>0){ds.push(aY);lbls.push('各種加算');}
+  if(tY>0){ds.push(tY);lbls.push('処遇改善加算');}
+  if (dChart) dChart.destroy();
+  dChart = new Chart(document.getElementById('cDonut'), {
+    type:'doughnut',
+    data:{ labels:lbls, datasets:[{
+      data:ds,
+      backgroundColor:[ROSE+'0.75)',SAGE+'0.75)',GOLD+'0.75)'],
+      borderColor:'white', borderWidth:3,
+    }]},
+    options:{ responsive:true, plugins:{
+      legend:{position:'bottom', labels:{color:'#7a6e6e',font:{size:11},padding:14}},
+      tooltip:{callbacks:{label:c=>c.label+': ¥'+c.raw.toLocaleString()}}
+    }}
   });
 
-  // Bar chart: 12ヶ月（季節変動シミュレーション）
-  const seasonalRates = [currentRate-3, currentRate-2, currentRate+2, currentRate+1,
-                         currentRate-5, currentRate-8, currentRate-2, currentRate,
-                         currentRate+3, currentRate+2, currentRate-1, currentRate-3];
-  const barData = seasonalRates.map(r2 => calcRevenue(Math.max(50, Math.min(100, r2))).totalYen);
-
-  if (barChart) barChart.destroy();
-  barChart = new Chart(document.getElementById('chartBar'), {
-    type: 'bar',
-    data: {
-      labels: MONTHS,
-      datasets: [{
-        label: '月間売上',
-        data: barData,
-        backgroundColor: barData.map((v, i) => {
-          const max = Math.max(...barData);
-          if (v === max) return 'rgba(16,185,129,0.8)';
-          if (v === Math.min(...barData)) return 'rgba(239,68,68,0.6)';
-          return 'rgba(0,212,255,0.6)';
-        }),
-        borderRadius: 6,
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => '¥' + ctx.raw.toLocaleString('ja-JP')
-          }
-        }
-      },
-      scales: {
-        y: {
-          ticks: {
-            color: '#64748b',
-            callback: v => '¥' + (v/10000).toFixed(0) + '万'
-          },
-          grid: { color: 'rgba(30,45,74,0.5)' }
-        },
-        x: {
-          ticks: { color: '#64748b' },
-          grid: { display: false }
-        }
+  // Bar 12m
+  const season = [p.util-2,p.util-1,p.util+2,p.util+1,p.util-4,p.util-7,p.util-2,p.util,p.util+3,p.util+2,p.util-1,p.util-2];
+  const barD = season.map(rt=>revenue(p,Math.max(50,Math.min(100,rt))).yen);
+  const mx=Math.max(...barD), mn=Math.min(...barD);
+  if (bChart) bChart.destroy();
+  bChart = new Chart(document.getElementById('cBar'), {
+    type:'bar',
+    data:{ labels:MONTHS, datasets:[{
+      data:barD,
+      backgroundColor: barD.map(v=>v===mx? SAGE+'0.8)':v===mn? GOLD+'0.6)':ROSE+'0.55)'),
+      borderRadius:8,
+      borderSkipped:false,
+    }]},
+    options:{
+      responsive:true,
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>'¥'+c.raw.toLocaleString()}} },
+      scales:{
+        y:{ ticks:{color:'#b0a5a5',callback:v=>'¥'+(v/10000).toFixed(0)+'万'}, grid:{color:'rgba(232,221,213,0.5)'} },
+        x:{ ticks:{color:'#b0a5a5'}, grid:{display:false} }
       }
     }
   });
 }
 
-// 初期化
 window.onload = calc;
 </script>
 </body>
