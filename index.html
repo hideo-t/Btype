@@ -2,532 +2,560 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>就労継続支援B型 経営サポートシミュレーター</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>B型 経営サポートシミュレーター</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap');
 
 :root {
-  --cream:    #fdf8f3;
-  --ivory:    #f9f3eb;
-  --warm:     #f4ece0;
-  --rose:     #c9788a;
-  --rose-lt:  #e8b4be;
-  --rose-dk:  #9e4f62;
-  --mauve:    #b89aae;
-  --sage:     #7a9e8b;
-  --sage-lt:  #a8c5b5;
-  --gold:     #c8965a;
-  --gold-lt:  #e8c49a;
-  --charcoal: #3d3535;
-  --mid:      #7a6e6e;
-  --light:    #b0a5a5;
-  --border:   #e8ddd5;
-  --shadow:   rgba(100,70,70,0.08);
+  --cream:   #fdf8f3;
+  --ivory:   #f9f2ea;
+  --warm:    #f3ece0;
+  --rose:    #c4728a;
+  --rose-lt: #e8b4be;
+  --rose-dk: #9a4960;
+  --rose-bg: rgba(196,114,138,0.07);
+  --mauve:   #b394ab;
+  --sage:    #76997f;
+  --sage-lt: #a6c2ad;
+  --sage-bg: rgba(118,153,127,0.07);
+  --gold:    #c49050;
+  --gold-lt: #e5c08a;
+  --gold-bg: rgba(196,144,80,0.07);
+  --charcoal:#3a3030;
+  --mid:     #786a6a;
+  --light:   #b09898;
+  --border:  #eae0d8;
+  --white:   #ffffff;
+  --shadow:  rgba(100,60,60,0.07);
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
 
 body {
   font-family: 'Noto Sans JP', sans-serif;
   background: var(--cream);
   color: var(--charcoal);
   min-height: 100vh;
-  background-image:
-    radial-gradient(ellipse at 15% 0%, rgba(201,120,138,0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 85% 100%, rgba(122,158,139,0.07) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(200,150,90,0.04) 0%, transparent 70%);
+  overflow-x: hidden;
 }
 
-/* ─── DECORATIVE SVG ─── */
-.deco { position: fixed; pointer-events: none; z-index: 0; opacity: 0.18; }
-.deco-tl { top: -40px; left: -40px; width: 260px; }
-.deco-br { bottom: -40px; right: -40px; width: 220px; transform: rotate(180deg); }
+/* ══ DECORATIVE BG ══ */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 40% at 10% 5%, rgba(196,114,138,0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 90% 95%, rgba(118,153,127,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 30% at 80% 10%, rgba(196,144,80,0.04) 0%, transparent 70%);
+}
 
-/* ─── HEADER ─── */
+/* ══ HEADER ══ */
 .header {
-  padding: 28px 48px 24px;
-  display: flex; align-items: center; gap: 20px;
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(253,248,243,0.95);
+  backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
-  background: rgba(253,248,243,0.92);
-  backdrop-filter: blur(12px);
-  position: sticky; top: 0; z-index: 100;
+  padding: 0 20px;
 }
-
-.header-ornament {
-  width: 48px; height: 48px;
+.header-inner {
+  display: flex; align-items: center; gap: 12px;
+  height: 60px; max-width: 1100px; margin: 0 auto;
+}
+.h-icon {
+  width: 38px; height: 38px; flex-shrink: 0;
   background: linear-gradient(135deg, var(--rose), var(--mauve));
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  box-shadow: 0 4px 16px rgba(201,120,138,0.25);
-  flex-shrink: 0;
+  font-size: 18px;
+  box-shadow: 0 3px 10px rgba(196,114,138,0.28);
 }
-
-.header-text h1 {
+.h-text h1 {
   font-family: 'Noto Serif JP', serif;
-  font-size: 19px;
-  font-weight: 600;
-  color: var(--rose-dk);
-  letter-spacing: 0.04em;
+  font-size: clamp(13px, 3vw, 17px);
+  font-weight: 600; color: var(--rose-dk);
+  line-height: 1.2;
 }
-.header-text p {
-  font-size: 11px;
-  color: var(--light);
-  letter-spacing: 0.12em;
-  margin-top: 2px;
-}
-
-.header-tagline {
-  margin-left: auto;
-  text-align: right;
-}
-.header-tagline .tag-main {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 13px;
-  font-style: italic;
-  color: var(--rose);
-  letter-spacing: 0.06em;
-}
-.header-tagline .tag-sub {
-  font-size: 10px;
-  color: var(--light);
-  letter-spacing: 0.1em;
-}
-.badge-year {
+.h-text p { font-size: 10px; color: var(--light); letter-spacing: 0.06em; margin-top: 2px; }
+.h-badge {
+  margin-left: auto; flex-shrink: 0;
   background: linear-gradient(135deg, var(--rose), var(--mauve));
-  color: white;
-  font-size: 9px;
-  padding: 3px 10px;
-  border-radius: 20px;
-  letter-spacing: 0.1em;
-  margin-left: 12px;
+  color: white; font-size: 9px;
+  padding: 3px 10px; border-radius: 20px; letter-spacing: 0.08em;
 }
 
-/* ─── LAYOUT ─── */
-.main {
+/* ══ DESKTOP LAYOUT ══ */
+.app {
   display: grid;
-  grid-template-columns: 360px 1fr;
-  min-height: calc(100vh - 89px);
+  grid-template-columns: 340px 1fr;
+  min-height: calc(100vh - 60px);
+  max-width: 1200px;
+  margin: 0 auto;
   position: relative; z-index: 1;
 }
 
-/* ─── SIDEBAR ─── */
+/* ══ SIDEBAR ══ */
 .sidebar {
   background: var(--ivory);
   border-right: 1px solid var(--border);
-  padding: 28px 24px;
+  padding: 24px 20px;
+  overflow-y: auto;
+  position: sticky; top: 60px;
+  height: calc(100vh - 60px);
+}
+
+/* ══ CONTENT ══ */
+.content {
+  padding: 24px 24px 40px;
   overflow-y: auto;
 }
 
-.sec-title {
+/* ══ MOBILE TAB BAR ══ */
+.mobile-tabs {
+  display: none;
+  position: sticky; top: 60px; z-index: 150;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  grid-template-columns: 1fr 1fr;
+}
+.tab-btn {
+  padding: 12px; text-align: center;
+  font-size: 12px; font-weight: 500;
+  color: var(--light); background: none; border: none;
+  cursor: pointer; transition: all 0.2s;
+  border-bottom: 2px solid transparent;
+}
+.tab-btn.active { color: var(--rose-dk); border-bottom-color: var(--rose); }
+
+/* ══ FORM ELEMENTS ══ */
+.sec {
   font-family: 'Noto Serif JP', serif;
-  font-size: 11px;
-  color: var(--rose);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  font-size: 10px; color: var(--rose);
+  letter-spacing: 0.2em; text-transform: uppercase;
   margin-bottom: 14px;
   display: flex; align-items: center; gap: 8px;
 }
-.sec-title::before {
-  content: '';
-  width: 18px; height: 1px;
-  background: linear-gradient(90deg, var(--rose-lt), transparent);
-}
-.sec-title::after {
-  content: '';
-  flex: 1; height: 1px;
-  background: linear-gradient(90deg, var(--border), transparent);
+.sec::before { content:''; width:16px; height:1px; background:var(--rose-lt); }
+.sec::after  { content:''; flex:1; height:1px; background:linear-gradient(90deg,var(--border),transparent); }
+
+.fg { margin-bottom: 16px; }
+.fl {
+  display: block; font-size: 11px; color: var(--mid);
+  margin-bottom: 6px; letter-spacing: 0.05em;
 }
 
-.form-group { margin-bottom: 18px; }
-
-.form-label {
-  display: block;
-  font-size: 11px;
-  color: var(--mid);
-  margin-bottom: 7px;
-  letter-spacing: 0.06em;
+.sel-wrap { position: relative; }
+.sel-wrap::after {
+  content: '✿'; position: absolute; right: 12px; top: 50%;
+  transform: translateY(-50%); color: var(--rose-lt);
+  font-size: 11px; pointer-events: none;
 }
-
 select, input[type="number"] {
-  width: 100%;
-  background: white;
+  width: 100%; background: var(--white);
   border: 1px solid var(--border);
   color: var(--charcoal);
-  padding: 10px 14px;
-  border-radius: 10px;
+  padding: 10px 14px; border-radius: 10px;
   font-family: 'Noto Sans JP', sans-serif;
-  font-size: 13px;
-  outline: none;
-  appearance: none;
+  font-size: 14px; /* モバイルズーム防止 */
+  outline: none; appearance: none;
   transition: border-color 0.2s, box-shadow 0.2s;
   box-shadow: 0 1px 4px var(--shadow);
+  -webkit-appearance: none;
 }
 select:focus, input:focus {
   border-color: var(--rose-lt);
-  box-shadow: 0 0 0 3px rgba(201,120,138,0.12);
-}
-select option { background: white; }
-
-/* カスタムセレクト矢印 */
-.select-wrap { position: relative; }
-.select-wrap::after {
-  content: '❧';
-  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-  color: var(--rose-lt); font-size: 12px; pointer-events: none;
+  box-shadow: 0 0 0 3px rgba(196,114,138,0.12);
 }
 
-/* スライダー */
-.slider-group { margin-bottom: 18px; }
-.slider-header {
-  display: flex; justify-content: space-between; align-items: baseline;
-  margin-bottom: 8px;
+/* ══ SLIDER ══ */
+.sl-group { margin-bottom: 18px; }
+.sl-head {
+  display: flex; justify-content: space-between;
+  align-items: baseline; margin-bottom: 8px;
 }
-.slider-header label { font-size: 11px; color: var(--mid); letter-spacing: 0.06em; }
-.slider-val {
+.sl-head label { font-size: 11px; color: var(--mid); }
+.sl-num {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 22px; font-weight: 500; color: var(--rose);
+  font-size: 24px; font-weight: 500; color: var(--rose);
+  line-height: 1;
 }
-.slider-val small { font-size: 13px; }
+.sl-num small { font-size: 14px; }
 
 input[type="range"] {
-  -webkit-appearance: none;
+  -webkit-appearance: none; appearance: none;
   width: 100%; height: 5px;
-  background: var(--border);
-  border-radius: 3px; border: none; padding: 0;
-  outline: none; cursor: pointer;
-  box-shadow: none;
+  background: var(--border); border-radius: 3px;
+  border: none; padding: 0; outline: none;
+  cursor: pointer; box-shadow: none;
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 18px; height: 18px;
+  width: 22px; height: 22px;
   background: linear-gradient(135deg, var(--rose), var(--mauve));
   border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(201,120,138,0.35);
-  cursor: pointer;
-  transition: transform 0.15s;
+  box-shadow: 0 2px 8px rgba(196,114,138,0.4);
+  cursor: pointer; transition: transform 0.15s;
 }
-input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type="range"]:hover::-webkit-slider-thumb { transform: scale(1.1); }
+input[type="range"]:active::-webkit-slider-thumb { transform: scale(1.2); }
 
-/* 工賃スライダー */
-.wage-wrap {
-  background: white; border: 1px solid var(--border);
-  border-radius: 12px; padding: 16px;
+/* ══ WAGE CARD ══ */
+.wage-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 14px; padding: 16px;
   box-shadow: 0 1px 6px var(--shadow);
   margin-bottom: 20px;
 }
 .wage-tiers {
-  display: flex; justify-content: space-between;
-  margin-top: 8px;
-  font-size: 9px; color: var(--light); letter-spacing: -0.02em;
+  display: flex; justify-content: space-between; flex-wrap: nowrap;
+  margin-top: 8px; font-size: 8.5px;
+  color: var(--light); overflow: hidden;
 }
-.wage-current {
+.wage-disp {
   text-align: center; margin-top: 10px;
+  padding: 10px;
+  background: linear-gradient(135deg, var(--gold-bg), rgba(196,114,138,0.04));
+  border-radius: 8px;
 }
-.wage-amount {
+.wage-amt {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 20px; color: var(--gold);
-  display: block;
+  font-size: 20px; color: var(--gold); display: block; font-weight: 500;
 }
-.wage-unit-note { font-size: 9px; color: var(--light); }
+.wage-note { font-size: 10px; color: var(--light); }
 
-/* 加算チェック */
-.addon-list { display: grid; gap: 7px; }
-.addon-item {
+/* ══ ADDONS ══ */
+.addon-grid { display: grid; gap: 7px; }
+.addon-row {
   display: flex; align-items: center; gap: 10px;
-  padding: 10px 12px;
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.18s;
-  font-size: 12px;
+  padding: 11px 12px;
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 10px; cursor: pointer;
+  transition: all 0.18s; user-select: none;
   box-shadow: 0 1px 3px var(--shadow);
+  -webkit-tap-highlight-color: transparent;
 }
-.addon-item:hover { border-color: var(--rose-lt); box-shadow: 0 2px 8px rgba(201,120,138,0.12); }
-.addon-item.on { border-color: var(--rose-lt); background: rgba(232,180,190,0.08); }
-
-.addon-item input { display: none; }
-.addon-check {
-  width: 16px; height: 16px;
-  border: 1.5px solid var(--border);
-  border-radius: 50%;
+.addon-row:hover { border-color: var(--rose-lt); }
+.addon-row.on { border-color: var(--rose-lt); background: rgba(196,114,138,0.05); }
+.addon-row input { display: none; }
+.chk {
+  width: 18px; height: 18px; flex-shrink: 0;
+  border: 1.5px solid var(--border); border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.15s;
-  font-size: 9px;
+  font-size: 10px; transition: all 0.15s; color: white;
 }
-.addon-item.on .addon-check {
+.on .chk {
   background: linear-gradient(135deg, var(--rose), var(--mauve));
   border-color: transparent;
-  color: white;
 }
-.addon-name { flex: 1; color: var(--charcoal); }
-.addon-pt {
+.a-name { flex: 1; font-size: 12px; color: var(--charcoal); }
+.a-pt {
   font-size: 10px; color: var(--rose);
-  background: rgba(201,120,138,0.1);
-  padding: 2px 7px; border-radius: 10px;
-  white-space: nowrap;
+  background: rgba(196,114,138,0.1);
+  padding: 2px 7px; border-radius: 10px; white-space: nowrap;
 }
 
-.divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--border), transparent);
-  margin: 22px 0;
+.div { height: 1px; background: linear-gradient(90deg,transparent,var(--border),transparent); margin: 20px 0; }
+
+/* ══ KPI CARDS ══ */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px; margin-bottom: 20px;
 }
-
-/* ─── CONTENT ─── */
-.content { padding: 28px 32px; overflow-y: auto; }
-
-/* ─── KPI CARDS ─── */
-.kpi-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 26px; }
-
-.kpi-card {
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 22px 20px 18px;
+.kpi {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 16px; padding: 18px 14px 14px;
   position: relative; overflow: hidden;
-  box-shadow: 0 2px 12px var(--shadow);
+  box-shadow: 0 2px 10px var(--shadow);
   transition: transform 0.2s, box-shadow 0.2s;
 }
-.kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--shadow); }
-
-.kpi-card::after {
-  content: '';
-  position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+.kpi:hover { transform: translateY(-2px); box-shadow: 0 6px 18px var(--shadow); }
+.kpi::after {
+  content: ''; position: absolute;
+  bottom: 0; left: 0; right: 0; height: 3px;
 }
-.kpi-card.rose::after { background: linear-gradient(90deg, var(--rose), var(--mauve)); }
-.kpi-card.sage::after { background: linear-gradient(90deg, var(--sage), var(--sage-lt)); }
-.kpi-card.gold::after { background: linear-gradient(90deg, var(--gold), var(--gold-lt)); }
-
-.kpi-petal {
-  position: absolute; top: -15px; right: -15px;
-  width: 70px; height: 70px; opacity: 0.07;
-  font-size: 60px; line-height: 1;
+.kpi.rose::after { background: linear-gradient(90deg, var(--rose), var(--mauve)); }
+.kpi.sage::after { background: linear-gradient(90deg, var(--sage), var(--sage-lt)); }
+.kpi.gold::after { background: linear-gradient(90deg, var(--gold), var(--gold-lt)); }
+.kpi-deco {
+  position: absolute; top: -10px; right: -10px;
+  font-size: 50px; opacity: 0.06; pointer-events: none;
 }
-
-.kpi-label {
-  font-size: 10px; color: var(--light);
-  letter-spacing: 0.1em; margin-bottom: 8px;
-}
-.kpi-value {
+.kpi-lbl { font-size: 10px; color: var(--light); letter-spacing: 0.06em; margin-bottom: 6px; }
+.kpi-val {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 32px; font-weight: 500; line-height: 1;
-  margin-bottom: 6px;
+  font-size: clamp(22px, 4vw, 30px); font-weight: 500; line-height: 1;
+  margin-bottom: 5px;
 }
-.kpi-card.rose .kpi-value { color: var(--rose-dk); }
-.kpi-card.sage .kpi-value { color: var(--sage); }
-.kpi-card.gold .kpi-value { color: var(--gold); }
+.kpi.rose .kpi-val { color: var(--rose-dk); }
+.kpi.sage .kpi-val { color: var(--sage); }
+.kpi.gold .kpi-val { color: var(--gold); }
 .kpi-sub { font-size: 10px; color: var(--light); }
 
-/* ─── INSIGHT BAR ─── */
-.insight-bar {
-  background: linear-gradient(135deg, rgba(201,120,138,0.06), rgba(184,154,174,0.06));
-  border: 1px solid rgba(201,120,138,0.2);
-  border-radius: 12px;
-  padding: 14px 20px;
-  display: flex; align-items: center; gap: 14px;
-  margin-bottom: 24px;
-  font-size: 12px; color: var(--charcoal);
+/* ══ WAGE IMPACT HERO ══ */
+.wage-hero {
+  background: linear-gradient(135deg, rgba(196,114,138,0.06), rgba(179,148,171,0.06));
+  border: 1px solid rgba(196,114,138,0.2);
+  border-radius: 16px; padding: 20px;
+  margin-bottom: 20px;
+  position: relative; overflow: hidden;
 }
-.insight-icon { font-size: 20px; flex-shrink: 0; }
-.insight-text strong { color: var(--rose-dk); }
-
-/* ─── SCENARIO ─── */
-.scene-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
-
-.scene-card {
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 18px;
-  text-align: center;
-  box-shadow: 0 1px 6px var(--shadow);
-  transition: box-shadow 0.2s;
+.wage-hero::before {
+  content: '🌸';
+  position: absolute; right: 16px; top: 16px;
+  font-size: 40px; opacity: 0.12;
 }
-.scene-card:hover { box-shadow: 0 4px 14px var(--shadow); }
-.scene-card.best { border-top: 2px solid var(--sage); }
-.scene-card.base { border-top: 2px solid var(--rose); }
-.scene-card.worst { border-top: 2px solid var(--gold-lt); }
-
-.scene-tag {
-  font-size: 9px; letter-spacing: 0.14em;
-  margin-bottom: 6px; font-weight: 500;
-}
-.scene-card.best .scene-tag { color: var(--sage); }
-.scene-card.base .scene-tag { color: var(--rose); }
-.scene-card.worst .scene-tag { color: var(--gold); }
-
-.scene-rate { font-size: 11px; color: var(--light); margin-bottom: 5px; }
-.scene-amt {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 24px; font-weight: 500;
-}
-.scene-card.best .scene-amt { color: var(--sage); }
-.scene-card.base .scene-amt { color: var(--rose-dk); }
-.scene-card.worst .scene-amt { color: var(--gold); }
-.scene-yr { font-size: 10px; color: var(--light); margin-top: 4px; }
-
-/* ─── CHARTS ─── */
-.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 22px; }
-.chart-card {
-  background: white; border: 1px solid var(--border);
-  border-radius: 16px; padding: 22px;
-  box-shadow: 0 1px 8px var(--shadow);
-}
-.chart-card-title {
+.wh-title {
   font-family: 'Noto Serif JP', serif;
-  font-size: 12px; color: var(--charcoal);
-  margin-bottom: 16px; letter-spacing: 0.04em;
+  font-size: 13px; color: var(--rose-dk);
+  font-weight: 600; margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
 }
-.full-chart {
-  background: white; border: 1px solid var(--border);
-  border-radius: 16px; padding: 22px;
-  margin-bottom: 22px;
-  box-shadow: 0 1px 8px var(--shadow);
+.wh-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.wh-item { background: rgba(255,255,255,0.7); border-radius: 10px; padding: 12px; }
+.wh-lbl { font-size: 10px; color: var(--light); margin-bottom: 6px; }
+.wh-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 500;
 }
+.wh-item.cur .wh-val { color: var(--rose-dk); }
+.wh-item.up  .wh-val { color: var(--sage); }
 
-/* ─── 工賃インパクト ─── */
-.wage-impact-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-  margin-bottom: 22px;
+/* ══ INSIGHT BAR ══ */
+.insight {
+  background: var(--white); border: 1px solid var(--border);
+  border-left: 3px solid var(--rose);
+  border-radius: 12px; padding: 14px 16px;
+  margin-bottom: 20px; font-size: 12px;
+  line-height: 1.8; color: var(--mid);
+  box-shadow: 0 1px 6px var(--shadow);
+  display: flex; gap: 10px; align-items: flex-start;
 }
-.impact-card {
-  background: white; border: 1px solid var(--border);
+.insight-ico { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.insight strong { color: var(--rose-dk); }
+
+/* ══ SCENARIO ══ */
+.scene-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 10px; margin-bottom: 20px;
+}
+.scene {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 14px; padding: 16px 12px;
+  text-align: center; box-shadow: 0 1px 6px var(--shadow);
+}
+.scene.best { border-top: 2px solid var(--sage); }
+.scene.base { border-top: 2px solid var(--rose); }
+.scene.worst { border-top: 2px solid var(--gold-lt); }
+.sc-tag { font-size: 9px; letter-spacing: 0.1em; font-weight: 500; margin-bottom: 5px; }
+.scene.best .sc-tag { color: var(--sage); }
+.scene.base .sc-tag { color: var(--rose); }
+.scene.worst .sc-tag { color: var(--gold); }
+.sc-rate { font-size: 10px; color: var(--light); margin-bottom: 4px; }
+.sc-amt {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(18px, 3.5vw, 24px); font-weight: 500;
+}
+.scene.best .sc-amt { color: var(--sage); }
+.scene.base .sc-amt { color: var(--rose-dk); }
+.scene.worst .sc-amt { color: var(--gold); }
+.sc-yr { font-size: 10px; color: var(--light); margin-top: 3px; }
+
+/* ══ CHARTS ══ */
+.chart-pair {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; margin-bottom: 18px;
+}
+.ch-card {
+  background: var(--white); border: 1px solid var(--border);
   border-radius: 14px; padding: 18px;
   box-shadow: 0 1px 6px var(--shadow);
 }
-.impact-label { font-size: 11px; color: var(--light); margin-bottom: 8px; letter-spacing: 0.05em; }
-.impact-val {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 22px; font-weight: 500; color: var(--rose-dk);
+.ch-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 11px; color: var(--charcoal);
+  margin-bottom: 14px; letter-spacing: 0.04em;
 }
-.impact-val.up { color: var(--sage); }
+.full-ch {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 14px; padding: 18px 18px 14px;
+  margin-bottom: 18px; box-shadow: 0 1px 6px var(--shadow);
+}
 
-/* ─── BREAKDOWN ─── */
-.breakdown-card {
-  background: white; border: 1px solid var(--border);
-  border-radius: 16px; padding: 24px;
-  box-shadow: 0 1px 8px var(--shadow);
-  margin-bottom: 18px;
+/* ══ BREAKDOWN ══ */
+.bd-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 14px; padding: 20px;
+  margin-bottom: 18px; box-shadow: 0 1px 6px var(--shadow);
 }
 .bd-title {
   font-family: 'Noto Serif JP', serif;
   font-size: 13px; color: var(--charcoal);
-  margin-bottom: 18px; letter-spacing: 0.04em;
-  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
 }
-.bd-title::before { content: '✿'; font-size: 12px; color: var(--rose-lt); }
-
+.bd-title::before { content: '✿'; color: var(--rose-lt); font-size: 12px; }
 table { width: 100%; border-collapse: collapse; font-size: 12px; }
 th {
-  text-align: left; padding: 8px 12px;
+  text-align: left; padding: 8px 10px;
   font-size: 10px; color: var(--light);
-  letter-spacing: 0.08em; font-weight: 400;
+  font-weight: 400; letter-spacing: 0.06em;
   border-bottom: 1px solid var(--border);
 }
 td {
-  padding: 10px 12px;
-  border-bottom: 1px solid rgba(232,221,213,0.5);
+  padding: 10px 10px;
+  border-bottom: 1px solid rgba(234,224,216,0.6);
 }
 tr:last-child td { border-bottom: none; }
-.bd-total td {
+.bd-tot td {
   font-weight: 600; color: var(--rose-dk);
   border-top: 1px solid var(--border);
-  background: rgba(201,120,138,0.03);
+  background: rgba(196,114,138,0.03);
 }
-.nm { color: var(--charcoal); }
 .r { text-align: right; }
-.pct-col { text-align: right; color: var(--light); font-size: 10px; }
+.pct { text-align: right; font-size: 10px; color: var(--light); }
 
-/* ─── 経営アドバイス ─── */
-.advice-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
-.advice-card {
-  background: linear-gradient(135deg, rgba(201,120,138,0.04), rgba(184,154,174,0.04));
-  border: 1px solid rgba(201,120,138,0.18);
+/* ══ ADVICE ══ */
+.advice-pair {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; margin-bottom: 18px;
+}
+.adv {
+  background: linear-gradient(135deg, rgba(196,114,138,0.04), rgba(179,148,171,0.04));
+  border: 1px solid rgba(196,114,138,0.16);
   border-radius: 14px; padding: 18px;
 }
-.advice-icon { font-size: 20px; margin-bottom: 8px; }
-.advice-title { font-size: 12px; font-weight: 500; color: var(--rose-dk); margin-bottom: 6px; }
-.advice-body { font-size: 11px; color: var(--mid); line-height: 1.7; }
-.advice-highlight { color: var(--rose); font-weight: 600; }
+.adv-ico { font-size: 22px; margin-bottom: 10px; }
+.adv-ttl { font-size: 12px; font-weight: 500; color: var(--rose-dk); margin-bottom: 8px; }
+.adv-body { font-size: 11px; color: var(--mid); line-height: 1.75; }
+.adv-body strong { color: var(--rose); }
 
-/* ─── FOOTER ─── */
+/* ══ FOOTER ══ */
 footer {
-  text-align: center; padding: 20px;
+  text-align: center; padding: 18px 20px;
   font-size: 10px; color: var(--light);
-  letter-spacing: 0.1em; border-top: 1px solid var(--border);
+  letter-spacing: 0.1em;
+  border-top: 1px solid var(--border);
 }
-footer span { color: var(--rose-lt); }
 
-/* ─── SCROLLBAR ─── */
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: var(--cream); }
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar { width: 5px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--rose-lt); border-radius: 3px; }
 
-/* ─── ANIMATIONS ─── */
+/* ══ ANIMATIONS ══ */
 @keyframes bloom {
-  from { opacity: 0; transform: scale(0.96) translateY(12px); }
-  to   { opacity: 1; transform: scale(1) translateY(0); }
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
-.kpi-row, .scene-row, .chart-grid, .full-chart, .breakdown-card, .advice-row {
-  animation: bloom 0.45s ease both;
+.kpi-grid  { animation: bloom 0.4s ease both 0.05s; }
+.wage-hero { animation: bloom 0.4s ease both 0.1s; }
+.insight   { animation: bloom 0.4s ease both 0.12s; }
+.scene-grid{ animation: bloom 0.4s ease both 0.15s; }
+.chart-pair{ animation: bloom 0.4s ease both 0.18s; }
+.full-ch   { animation: bloom 0.4s ease both 0.21s; }
+.bd-card   { animation: bloom 0.4s ease both 0.24s; }
+.advice-pair{ animation: bloom 0.4s ease both 0.27s; }
+
+/* ══════════════════════════════
+   RESPONSIVE — TABLET 768px以下
+══════════════════════════════ */
+@media (max-width: 900px) {
+  .app {
+    grid-template-columns: 1fr;
+    display: block;
+  }
+  .sidebar {
+    position: static;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    display: none; /* タブで制御 */
+  }
+  .sidebar.active { display: block; }
+  .mobile-tabs { display: grid; }
+  .content { padding: 20px 16px 40px; }
 }
-.kpi-row  { animation-delay: 0.05s; }
-.scene-row { animation-delay: 0.1s; }
-.chart-grid { animation-delay: 0.15s; }
+
+@media (max-width: 600px) {
+  .header-inner { height: 56px; }
+  .h-text h1 { font-size: 13px; }
+  .h-text p { display: none; }
+
+  /* KPI: 3列 → 1列×3 縦積み */
+  .kpi-grid { grid-template-columns: 1fr; gap: 10px; }
+  .kpi { display: flex; align-items: center; gap: 14px; padding: 14px 16px; }
+  .kpi::after { bottom: auto; top: 0; left: 0; right: auto; width: 3px; height: 100%; }
+  .kpi.rose::after { background: linear-gradient(180deg, var(--rose), var(--mauve)); }
+  .kpi.sage::after { background: linear-gradient(180deg, var(--sage), var(--sage-lt)); }
+  .kpi.gold::after { background: linear-gradient(180deg, var(--gold), var(--gold-lt)); }
+  .kpi-deco { display: none; }
+  .kpi-lbl { margin-bottom: 3px; }
+  .kpi-val { font-size: 26px; }
+  .kpi-inner { flex: 1; }
+
+  /* WH grid: 2列 */
+  .wh-grid { grid-template-columns: 1fr 1fr; }
+
+  /* シナリオ: 3列 → 1列 */
+  .scene-grid { grid-template-columns: 1fr; gap: 8px; }
+  .scene { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; padding: 12px 14px; text-align: left; }
+  .scene.best,.scene.base,.scene.worst { border-top: 1px solid var(--border); border-left: 3px solid; }
+  .scene.best { border-left-color: var(--sage); }
+  .scene.base { border-left-color: var(--rose); }
+  .scene.worst { border-left-color: var(--gold-lt); }
+  .sc-yr { text-align: right; }
+
+  /* チャート: 2列 → 1列 */
+  .chart-pair { grid-template-columns: 1fr; }
+
+  /* アドバイス: 2列 → 1列 */
+  .advice-pair { grid-template-columns: 1fr; }
+
+  /* テーブル: スクロール対応 */
+  .bd-card { overflow-x: auto; }
+  table { min-width: 320px; }
+}
+
+@media (max-width: 380px) {
+  .wh-grid { grid-template-columns: 1fr; }
+  .h-badge { display: none; }
+  .kpi-val { font-size: 22px; }
+}
 </style>
 </head>
 <body>
 
-<!-- デコレーション -->
-<svg class="deco deco-tl" viewBox="0 0 260 260" fill="none">
-  <circle cx="80" cy="80" r="70" stroke="#c9788a" stroke-width="0.8" fill="none"/>
-  <circle cx="80" cy="80" r="45" stroke="#b89aae" stroke-width="0.5" fill="none"/>
-  <path d="M80 10 Q110 40 80 80 Q50 40 80 10Z" fill="#c9788a" opacity="0.3"/>
-  <path d="M80 150 Q110 120 80 80 Q50 120 80 150Z" fill="#c9788a" opacity="0.25"/>
-  <path d="M10 80 Q40 110 80 80 Q40 50 10 80Z" fill="#b89aae" opacity="0.25"/>
-  <path d="M150 80 Q120 110 80 80 Q120 50 150 80Z" fill="#b89aae" opacity="0.2"/>
-  <circle cx="80" cy="80" r="10" fill="#c9788a" opacity="0.4"/>
-</svg>
-<svg class="deco deco-br" viewBox="0 0 220 220" fill="none">
-  <circle cx="110" cy="110" r="90" stroke="#7a9e8b" stroke-width="0.8" fill="none"/>
-  <path d="M110 20 Q150 65 110 110 Q70 65 110 20Z" fill="#7a9e8b" opacity="0.3"/>
-  <path d="M110 200 Q150 155 110 110 Q70 155 110 200Z" fill="#7a9e8b" opacity="0.25"/>
-  <path d="M20 110 Q65 150 110 110 Q65 70 20 110Z" fill="#c8965a" opacity="0.22"/>
-  <path d="M200 110 Q155 150 110 110 Q155 70 200 110Z" fill="#c8965a" opacity="0.18"/>
-  <circle cx="110" cy="110" r="14" fill="#7a9e8b" opacity="0.35"/>
-</svg>
-
-<!-- HEADER -->
+<!-- ══ HEADER ══ -->
 <header class="header">
-  <div class="header-ornament">🌸</div>
-  <div class="header-text">
-    <h1>就労継続支援B型 経営サポートシミュレーター</h1>
-    <p>2024年度報酬改定対応　·　工賃連動型報酬計算　·　経営者向け分析ツール</p>
-  </div>
-  <div class="header-tagline">
-    <div class="tag-main">Empowering Women in Management</div>
-    <div class="tag-sub">
-      あなたの事業所の可能性を数字で見える化
-      <span class="badge-year">2024改定</span>
+  <div class="header-inner">
+    <div class="h-icon">🌸</div>
+    <div class="h-text">
+      <h1>就労継続支援B型 経営サポートシミュレーター</h1>
+      <p>2024年度報酬改定対応　·　工賃連動型報酬計算</p>
     </div>
+    <span class="h-badge">2024改定</span>
   </div>
 </header>
 
-<div class="main">
+<!-- ══ MOBILE TAB BAR ══ -->
+<div class="mobile-tabs" id="tabs">
+  <button class="tab-btn" id="tab-result" onclick="switchTab('result')">📊 シミュレーション結果</button>
+  <button class="tab-btn active" id="tab-setting" onclick="switchTab('setting')">⚙️ 設定入力</button>
+</div>
 
-  <!-- ─── SIDEBAR ─── -->
-  <aside class="sidebar">
+<div class="app">
 
-    <div class="sec-title">事業所の基本情報</div>
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar active" id="sidebar">
 
-    <div class="form-group">
-      <label class="form-label">定員規模</label>
-      <div class="select-wrap">
+    <div class="sec">事業所の基本情報</div>
+
+    <div class="fg">
+      <label class="fl">定員規模</label>
+      <div class="sel-wrap">
         <select id="cap" onchange="calc()">
           <option value="20">20人以下</option>
           <option value="40" selected>21〜40人</option>
@@ -538,16 +566,16 @@ footer span { color: var(--rose-lt); }
       </div>
     </div>
 
-    <div class="form-group">
-      <label class="form-label">実際の定員人数</label>
-      <input type="number" id="actual" value="30" min="1" max="200" onchange="calc()">
+    <div class="fg">
+      <label class="fl">実際の定員人数</label>
+      <input type="number" id="actual" value="30" min="1" max="200" inputmode="numeric" onchange="calc()">
     </div>
 
-    <div class="form-group">
-      <label class="form-label">地域区分（1単位の単価）</label>
-      <div class="select-wrap">
+    <div class="fg">
+      <label class="fl">地域区分（1単位の単価）</label>
+      <div class="sel-wrap">
         <select id="region" onchange="calc()">
-          <option value="11.40">1級地（11.40円）— 東京23区等</option>
+          <option value="11.40">1級地（11.40円）東京23区等</option>
           <option value="11.12">2級地（11.12円）</option>
           <option value="11.05">3級地（11.05円）</option>
           <option value="10.84">4級地（10.84円）</option>
@@ -559,89 +587,79 @@ footer span { color: var(--rose-lt); }
       </div>
     </div>
 
-    <div class="form-group">
-      <label class="form-label">月間営業日数</label>
-      <input type="number" id="days" value="22" min="15" max="27" onchange="calc()">
+    <div class="fg">
+      <label class="fl">月間営業日数</label>
+      <input type="number" id="days" value="22" min="15" max="27" inputmode="numeric" onchange="calc()">
     </div>
 
-    <div class="slider-group">
-      <div class="slider-header">
+    <div class="sl-group">
+      <div class="sl-head">
         <label>平均利用率</label>
-        <div><span class="slider-val" id="rate_disp">82</span><span class="slider-val" style="font-size:13px">%</span></div>
+        <div><span class="sl-num" id="rate_d">82</span><span style="font-size:14px;color:var(--rose)">%</span></div>
       </div>
       <input type="range" id="util" min="50" max="100" value="82"
-        oninput="document.getElementById('rate_disp').textContent=this.value; calc()">
+        oninput="document.getElementById('rate_d').textContent=this.value; calc()">
     </div>
 
-    <div class="divider"></div>
-    <div class="sec-title">平均工賃月額（目標）</div>
+    <div class="div"></div>
+    <div class="sec">平均工賃月額（目標）</div>
 
-    <div class="wage-wrap">
+    <div class="wage-card">
+      <div class="sl-head" style="margin-bottom:6px">
+        <label class="fl" style="margin:0">工賃月額区分</label>
+        <span style="font-size:10px;color:var(--light)">8段階</span>
+      </div>
       <input type="range" id="wage_sl" min="0" max="7" value="3"
         oninput="syncWage(this.value); calc()">
       <div class="wage-tiers">
         <span>〜9,999</span><span>〜14,999</span><span>〜19,999</span><span>〜24,999</span>
         <span>〜29,999</span><span>〜34,999</span><span>〜44,999</span><span>45,000+</span>
       </div>
-      <div class="wage-current">
-        <span class="wage-amount" id="wage_lbl">〜24,999円</span>
-        <span class="wage-unit-note" id="wage_unit">— 単位/日</span>
+      <div class="wage-disp">
+        <span class="wage-amt" id="wage_lbl">〜24,999円</span>
+        <span class="wage-note" id="wage_unit">— 単位/日</span>
       </div>
     </div>
 
-    <div class="divider"></div>
-    <div class="sec-title">加算設定</div>
+    <div class="div"></div>
+    <div class="sec">加算設定</div>
 
-    <div class="addon-list">
-      <label class="addon-item" id="lb_p1" onclick="toggleAddon('lb_p1','add_p1')">
-        <input type="checkbox" id="add_p1">
-        <div class="addon-check" id="ck_p1"></div>
-        <span class="addon-name">福祉専門職員配置加算Ⅰ</span>
-        <span class="addon-pt">+15単位/日</span>
-      </label>
-      <label class="addon-item" id="lb_p2" onclick="toggleAddon('lb_p2','add_p2')">
-        <input type="checkbox" id="add_p2">
-        <div class="addon-check" id="ck_p2"></div>
-        <span class="addon-name">福祉専門職員配置加算Ⅱ</span>
-        <span class="addon-pt">+10単位/日</span>
-      </label>
-      <label class="addon-item on" id="lb_ab" onclick="toggleAddon('lb_ab','add_ab')">
-        <input type="checkbox" id="add_ab" checked>
-        <div class="addon-check" id="ck_ab" style="background:linear-gradient(135deg,#c9788a,#b89aae);border-color:transparent;color:white">✓</div>
-        <span class="addon-name">欠席時対応加算</span>
-        <span class="addon-pt">+94単位×4回</span>
-      </label>
-      <label class="addon-item" id="lb_pe" onclick="toggleAddon('lb_pe','add_pe')">
-        <input type="checkbox" id="add_pe">
-        <div class="addon-check" id="ck_pe"></div>
-        <span class="addon-name">ピアサポート実施加算</span>
-        <span class="addon-pt">+100単位/月</span>
-      </label>
-      <label class="addon-item" id="lb_wg" onclick="toggleAddon('lb_wg','add_wg')">
-        <input type="checkbox" id="add_wg">
-        <div class="addon-check" id="ck_wg"></div>
-        <span class="addon-name">工賃向上計画支援等加算</span>
-        <span class="addon-pt">+21単位/日</span>
-      </label>
-      <label class="addon-item" id="lb_mv" onclick="toggleAddon('lb_mv','add_mv')">
-        <input type="checkbox" id="add_mv">
-        <div class="addon-check" id="ck_mv"></div>
-        <span class="addon-name">就労移行連携加算</span>
-        <span class="addon-pt">+500単位/月</span>
-      </label>
-      <label class="addon-item" id="lb_md" onclick="toggleAddon('lb_md','add_md')">
-        <input type="checkbox" id="add_md">
-        <div class="addon-check" id="ck_md"></div>
-        <span class="addon-name">医療連携体制加算Ⅰ</span>
-        <span class="addon-pt">+32単位/日</span>
-      </label>
+    <div class="addon-grid">
+      <div class="addon-row" id="r_p1" onclick="togAddon('p1')">
+        <input type="checkbox" id="add_p1"><div class="chk" id="ck_p1"></div>
+        <span class="a-name">福祉専門職員配置加算Ⅰ</span><span class="a-pt">+15単位/日</span>
+      </div>
+      <div class="addon-row" id="r_p2" onclick="togAddon('p2')">
+        <input type="checkbox" id="add_p2"><div class="chk" id="ck_p2"></div>
+        <span class="a-name">福祉専門職員配置加算Ⅱ</span><span class="a-pt">+10単位/日</span>
+      </div>
+      <div class="addon-row on" id="r_ab" onclick="togAddon('ab')">
+        <input type="checkbox" id="add_ab" checked><div class="chk on" id="ck_ab">✓</div>
+        <span class="a-name">欠席時対応加算</span><span class="a-pt">+94×4回/月</span>
+      </div>
+      <div class="addon-row" id="r_pe" onclick="togAddon('pe')">
+        <input type="checkbox" id="add_pe"><div class="chk" id="ck_pe"></div>
+        <span class="a-name">ピアサポート実施加算</span><span class="a-pt">+100単位/月</span>
+      </div>
+      <div class="addon-row" id="r_wg" onclick="togAddon('wg')">
+        <input type="checkbox" id="add_wg"><div class="chk" id="ck_wg"></div>
+        <span class="a-name">工賃向上計画支援等加算</span><span class="a-pt">+21単位/日</span>
+      </div>
+      <div class="addon-row" id="r_mv" onclick="togAddon('mv')">
+        <input type="checkbox" id="add_mv"><div class="chk" id="ck_mv"></div>
+        <span class="a-name">就労移行連携加算</span><span class="a-pt">+500単位/月</span>
+      </div>
+      <div class="addon-row" id="r_md" onclick="togAddon('md')">
+        <input type="checkbox" id="add_md"><div class="chk" id="ck_md"></div>
+        <span class="a-name">医療連携体制加算Ⅰ</span><span class="a-pt">+32単位/日</span>
+      </div>
     </div>
 
-    <div class="divider"></div>
-    <div class="sec-title">処遇改善加算</div>
+    <div class="div"></div>
+    <div class="sec">処遇改善加算</div>
 
-    <div class="form-group">
-      <div class="select-wrap">
+    <div class="fg" style="margin-bottom:0">
+      <div class="sel-wrap">
         <select id="treat" onchange="calc()">
           <option value="0">なし（0%）</option>
           <option value="0.282" selected>加算Ⅰ（28.2%）</option>
@@ -654,99 +672,106 @@ footer span { color: var(--rose-lt); }
 
   </aside>
 
-  <!-- ─── CONTENT ─── -->
-  <main class="content">
+  <!-- ══ CONTENT ══ -->
+  <main class="content" id="result-panel">
 
     <!-- KPI -->
-    <div class="kpi-row">
-      <div class="kpi-card rose">
-        <div class="kpi-petal">🌸</div>
-        <div class="kpi-label">月間売上（予測）</div>
-        <div class="kpi-value" id="kpi_m">—</div>
-        <div class="kpi-sub" id="kpi_m_sub">—</div>
+    <div class="kpi-grid">
+      <div class="kpi rose">
+        <div class="kpi-deco">🌸</div>
+        <div class="kpi-inner">
+          <div class="kpi-lbl">月間売上（予測）</div>
+          <div class="kpi-val" id="kv_m">—</div>
+          <div class="kpi-sub" id="ks_m">—</div>
+        </div>
       </div>
-      <div class="kpi-card sage">
-        <div class="kpi-petal">🌿</div>
-        <div class="kpi-label">年間売上（予測）</div>
-        <div class="kpi-value" id="kpi_y">—</div>
-        <div class="kpi-sub" id="kpi_y_sub">—</div>
+      <div class="kpi sage">
+        <div class="kpi-deco">🌿</div>
+        <div class="kpi-inner">
+          <div class="kpi-lbl">年間売上（予測）</div>
+          <div class="kpi-val" id="kv_y">—</div>
+          <div class="kpi-sub" id="ks_y">—</div>
+        </div>
       </div>
-      <div class="kpi-card gold">
-        <div class="kpi-petal">✨</div>
-        <div class="kpi-label">1人あたり月間単価</div>
-        <div class="kpi-value" id="kpi_pp">—</div>
-        <div class="kpi-sub" id="kpi_pp_sub">—</div>
+      <div class="kpi gold">
+        <div class="kpi-deco">✨</div>
+        <div class="kpi-inner">
+          <div class="kpi-lbl">1人あたり月間単価</div>
+          <div class="kpi-val" id="kv_pp">—</div>
+          <div class="kpi-sub" id="ks_pp">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 工賃インパクト HERO -->
+    <div class="wage-hero">
+      <div class="wh-title">🌸 工賃アップが経営を変える</div>
+      <div class="wh-grid">
+        <div class="wh-item cur">
+          <div class="wh-lbl">現在の工賃区分 / 月間売上</div>
+          <div class="wh-val" id="wh_cur">—</div>
+        </div>
+        <div class="wh-item up">
+          <div class="wh-lbl">工賃1段階アップの増収（月）</div>
+          <div class="wh-val" id="wh_diff">—</div>
+        </div>
       </div>
     </div>
 
     <!-- インサイトバー -->
-    <div class="insight-bar">
-      <span class="insight-icon">💡</span>
-      <div class="insight-text" id="insight_text">計算中...</div>
-    </div>
-
-    <!-- 工賃インパクト -->
-    <div class="wage-impact-grid">
-      <div class="impact-card">
-        <div class="impact-label">現在の工賃区分での月間売上</div>
-        <div class="impact-val" id="imp_cur">—</div>
-      </div>
-      <div class="impact-card">
-        <div class="impact-label">工賃を1段階アップした場合の増収（月）</div>
-        <div class="impact-val up" id="imp_diff">—</div>
-      </div>
+    <div class="insight">
+      <span class="insight-ico">💡</span>
+      <div id="insight_txt">計算中...</div>
     </div>
 
     <!-- シナリオ -->
-    <div class="scene-row">
-      <div class="scene-card best">
-        <div class="scene-tag">▲ BEST — 利用率 +10%</div>
-        <div class="scene-rate" id="sc_b_r">—</div>
-        <div class="scene-amt" id="sc_b_a">—</div>
-        <div class="scene-yr" id="sc_b_y">—</div>
+    <div class="scene-grid">
+      <div class="scene best">
+        <div class="sc-tag">▲ BEST +10%</div>
+        <div class="sc-rate" id="sc_br">—</div>
+        <div class="sc-amt" id="sc_ba">—</div>
+        <div class="sc-yr" id="sc_by">—</div>
       </div>
-      <div class="scene-card base">
-        <div class="scene-tag">◆ BASE — 現在の設定</div>
-        <div class="scene-rate" id="sc_m_r">—</div>
-        <div class="scene-amt" id="sc_m_a">—</div>
-        <div class="scene-yr" id="sc_m_y">—</div>
+      <div class="scene base">
+        <div class="sc-tag">◆ BASE 現在</div>
+        <div class="sc-rate" id="sc_mr">—</div>
+        <div class="sc-amt" id="sc_ma">—</div>
+        <div class="sc-yr" id="sc_my">—</div>
       </div>
-      <div class="scene-card worst">
-        <div class="scene-tag">▼ WORST — 利用率 -10%</div>
-        <div class="scene-rate" id="sc_w_r">—</div>
-        <div class="scene-amt" id="sc_w_a">—</div>
-        <div class="scene-yr" id="sc_w_y">—</div>
+      <div class="scene worst">
+        <div class="sc-tag">▼ WORST -10%</div>
+        <div class="sc-rate" id="sc_wr">—</div>
+        <div class="sc-amt" id="sc_wa">—</div>
+        <div class="sc-yr" id="sc_wy">—</div>
       </div>
     </div>
 
-    <!-- Charts -->
-    <div class="chart-grid">
-      <div class="chart-card">
-        <div class="chart-card-title">✿ 利用率別 月間売上シミュレーション</div>
+    <!-- チャート2列 -->
+    <div class="chart-pair">
+      <div class="ch-card">
+        <div class="ch-title">✿ 利用率別 月間売上</div>
         <canvas id="cLine" height="190"></canvas>
       </div>
-      <div class="chart-card">
-        <div class="chart-card-title">✿ 売上内訳（月間）</div>
+      <div class="ch-card">
+        <div class="ch-title">✿ 売上内訳（月間）</div>
         <canvas id="cDonut" height="190"></canvas>
       </div>
     </div>
 
-    <!-- 12ヶ月 -->
-    <div class="full-chart">
-      <div class="chart-card-title">✿ 12ヶ月間 売上見込み（季節変動シミュレーション）</div>
-      <canvas id="cBar" height="95"></canvas>
+    <!-- 12ヶ月バー -->
+    <div class="full-ch">
+      <div class="ch-title">✿ 12ヶ月間 売上見込み（季節変動シミュレーション）</div>
+      <canvas id="cBar" height="100"></canvas>
     </div>
 
-    <!-- Breakdown -->
-    <div class="breakdown-card">
+    <!-- 内訳テーブル -->
+    <div class="bd-card">
       <div class="bd-title">報酬内訳（月間）</div>
       <table>
         <thead>
           <tr>
-            <th>項目</th>
-            <th class="r">単位数</th>
-            <th class="r">金額（円）</th>
-            <th class="r">構成比</th>
+            <th>項目</th><th class="r">単位数</th>
+            <th class="r">金額（円）</th><th class="r">構成比</th>
           </tr>
         </thead>
         <tbody id="bd_body"></tbody>
@@ -754,42 +779,41 @@ footer span { color: var(--rose-lt); }
     </div>
 
     <!-- 経営アドバイス -->
-    <div class="advice-row">
-      <div class="advice-card">
-        <div class="advice-icon">🌸</div>
-        <div class="advice-title">工賃アップが経営を変える</div>
-        <div class="advice-body">
+    <div class="advice-pair">
+      <div class="adv">
+        <div class="adv-ico">🌸</div>
+        <div class="adv-ttl">工賃アップで収益と利用者の幸福を同時に</div>
+        <div class="adv-body">
           B型の報酬は<strong>平均工賃月額</strong>に直結します。
-          工賃を1段階アップするだけで
-          <span class="advice-highlight" id="adv_wage">—</span>の増収。
-          利用者の工賃向上と事業所収益が同時に実現します。
+          工賃を1段階アップすると月間 <strong id="adv_w">—</strong> の増収。
+          工賃向上計画支援等加算（+21単位/日）の取得も
+          合わせて検討しましょう。
         </div>
       </div>
-      <div class="advice-card">
-        <div class="advice-icon">🌿</div>
-        <div class="advice-title">利用率1%が生む違い</div>
-        <div class="advice-body">
-          現在の設定で利用率を1%上げると
-          <span class="advice-highlight" id="adv_rate">—</span>／月の増収。
-          欠席時対応加算の適切な記録と
-          丁寧なケアが安定利用につながります。
+      <div class="adv">
+        <div class="adv-ico">🌿</div>
+        <div class="adv-ttl">利用率の安定が売上の土台をつくる</div>
+        <div class="adv-body">
+          利用率1%アップで月間 <strong id="adv_r">—</strong> の増収。
+          欠席時対応加算（月4回）の記録を徹底し、
+          丁寧な個別支援が安定利用率につながります。
         </div>
       </div>
     </div>
 
     <footer>
-      <span>✿</span>　就労継続支援B型 経営サポートシミュレーター　·　2024年度報酬改定対応　·　数値はすべて概算です　<span>✿</span>
+      ✿ &nbsp; 就労継続支援B型 経営サポートシミュレーター　·　2024年度報酬改定対応　·　数値はすべて概算です &nbsp; ✿
     </footer>
 
   </main>
 </div>
 
 <script>
+// ── DATA ──
 const WAGE_LABELS = [
   '〜9,999円','10,000〜14,999円','15,000〜19,999円','20,000〜24,999円',
   '25,000〜29,999円','30,000〜34,999円','35,000〜44,999円','45,000円以上'
 ];
-
 const BASE = {
   20: [653,663,678,692,707,717,736,746],
   40: [622,633,646,659,674,684,701,711],
@@ -797,230 +821,273 @@ const BASE = {
   80: [587,597,609,621,635,645,661,671],
   81: [573,583,595,607,620,630,645,655],
 };
-
 const MONTHS = ['4月','5月','6月','7月','8月','9月','10月','11月','12月','1月','2月','3月'];
+let lC, dC, bC;
 
-let lChart, dChart, bChart;
+// ── MOBILE TAB ──
+function switchTab(tab) {
+  const isM = window.innerWidth <= 900;
+  if (!isM) return;
+  const sb = document.getElementById('sidebar');
+  const rp = document.getElementById('result-panel');
+  if (tab === 'setting') {
+    sb.classList.add('active');
+    document.getElementById('tab-setting').classList.add('active');
+    document.getElementById('tab-result').classList.remove('active');
+  } else {
+    sb.classList.remove('active');
+    document.getElementById('tab-result').classList.add('active');
+    document.getElementById('tab-setting').classList.remove('active');
+    window.scrollTo(0, 60);
+  }
+}
 
+// ── ADDON TOGGLE ──
+function togAddon(id) {
+  const chk = document.getElementById('add_'+id);
+  const row = document.getElementById('r_'+id);
+  const ck  = document.getElementById('ck_'+id);
+  chk.checked = !chk.checked;
+  row.classList.toggle('on', chk.checked);
+  if (chk.checked) {
+    ck.style.background = 'linear-gradient(135deg,#c4728a,#b394ab)';
+    ck.style.borderColor = 'transparent';
+    ck.textContent = '✓';
+    ck.classList.add('on');
+  } else {
+    ck.style.background = '';
+    ck.style.borderColor = '';
+    ck.textContent = '';
+    ck.classList.remove('on');
+  }
+  calc();
+}
+
+// ── SYNC WAGE ──
 function syncWage(v) {
   document.getElementById('wage_lbl').textContent = WAGE_LABELS[v];
   const cap = parseInt(document.getElementById('cap').value);
   document.getElementById('wage_unit').textContent = BASE[cap][v] + ' 単位/日（基本）';
 }
 
-function toggleAddon(lblId, chkId) {
-  const chk = document.getElementById(chkId);
-  const lbl = document.getElementById(lblId);
-  const ck  = document.getElementById('ck_' + chkId.replace('add_',''));
-  chk.checked = !chk.checked;
-  lbl.classList.toggle('on', chk.checked);
-  if (chk.checked) {
-    ck.style.background = 'linear-gradient(135deg,#c9788a,#b89aae)';
-    ck.style.borderColor = 'transparent';
-    ck.style.color = 'white';
-    ck.textContent = '✓';
-  } else {
-    ck.style.background = '';
-    ck.style.borderColor = '';
-    ck.style.color = '';
-    ck.textContent = '';
-  }
-  calc();
-}
-
+// ── GET PARAMS ──
 function getP() {
   return {
-    cap: parseInt(document.getElementById('cap').value),
-    actual: parseInt(document.getElementById('actual').value)||30,
+    cap:    parseInt(document.getElementById('cap').value),
+    actual: parseInt(document.getElementById('actual').value) || 30,
     region: parseFloat(document.getElementById('region').value),
-    days: parseInt(document.getElementById('days').value)||22,
-    util: parseInt(document.getElementById('util').value),
-    wi: parseInt(document.getElementById('wage_sl').value),
-    treat: parseFloat(document.getElementById('treat').value)||0,
+    days:   parseInt(document.getElementById('days').value) || 22,
+    util:   parseInt(document.getElementById('util').value),
+    wi:     parseInt(document.getElementById('wage_sl').value),
+    treat:  parseFloat(document.getElementById('treat').value) || 0,
   };
 }
 
-function revenue(p, utilOv) {
-  const u = utilOv !== undefined ? utilOv : p.util;
-  const users = Math.floor(p.actual * u / 100);
-  const bu = BASE[p.cap][p.wi];
-  const baseU = bu * users * p.days;
-  let dayAdd = 0;
-  if (document.getElementById('add_p1').checked) dayAdd += 15;
-  if (document.getElementById('add_p2').checked) dayAdd += 10;
-  if (document.getElementById('add_wg').checked) dayAdd += 21;
-  if (document.getElementById('add_md').checked) dayAdd += 32;
-  const dayTotal = dayAdd * users * p.days;
-  let monAdd = 0;
-  if (document.getElementById('add_ab').checked) monAdd += 94*4;
-  if (document.getElementById('add_pe').checked) monAdd += 100*users;
-  if (document.getElementById('add_mv').checked) monAdd += 500;
-  const treatU = Math.floor((baseU + dayTotal) * p.treat);
-  const totalU = baseU + dayTotal + monAdd + treatU;
-  const yen = Math.floor(totalU * p.region);
-  return { users, bu, baseU, dayTotal, monAdd, treatU, totalU, yen };
+// ── REVENUE CALC ──
+function rev(p, uOv) {
+  const u = uOv !== undefined ? uOv : p.util;
+  const users  = Math.floor(p.actual * u / 100);
+  const bu     = BASE[p.cap][p.wi];
+  const baseU  = bu * users * p.days;
+  let dAdd = 0;
+  if (document.getElementById('add_p1').checked) dAdd += 15;
+  if (document.getElementById('add_p2').checked) dAdd += 10;
+  if (document.getElementById('add_wg').checked) dAdd += 21;
+  if (document.getElementById('add_md').checked) dAdd += 32;
+  const dayT = dAdd * users * p.days;
+  let mAdd = 0;
+  if (document.getElementById('add_ab').checked) mAdd += 94 * 4;
+  if (document.getElementById('add_pe').checked) mAdd += 100 * users;
+  if (document.getElementById('add_mv').checked) mAdd += 500;
+  const treatU  = Math.floor((baseU + dayT) * p.treat);
+  const totalU  = baseU + dayT + mAdd + treatU;
+  const yen     = Math.floor(totalU * p.region);
+  return { users, bu, baseU, dayT, mAdd, treatU, totalU, yen };
 }
 
+// ── FORMAT ──
 function fmt(n) {
-  if (n >= 10000000) return (n/10000000).toFixed(1) + '千万';
-  if (n >= 1000000)  return (n/1000000).toFixed(1) + '百万';
+  if (n >= 10000000) return (n/10000000).toFixed(1)+'千万';
+  if (n >= 1000000)  return (n/1000000).toFixed(1)+'百万';
   return n.toLocaleString('ja-JP');
 }
 
+// ── MAIN CALC ──
 function calc() {
   const p = getP();
   syncWage(p.wi);
-  const r = revenue(p);
+  const r = rev(p);
 
-  document.getElementById('kpi_m').textContent = '¥' + fmt(r.yen);
-  document.getElementById('kpi_m_sub').textContent = r.users + '人利用 / ' + p.days + '日';
-  document.getElementById('kpi_y').textContent = '¥' + fmt(r.yen * 12);
-  document.getElementById('kpi_y_sub').textContent = '月間 × 12ヶ月（概算）';
-  const pp = r.users > 0 ? Math.floor(r.yen / r.users) : 0;
-  document.getElementById('kpi_pp').textContent = '¥' + fmt(pp);
-  document.getElementById('kpi_pp_sub').textContent = '基本 ' + r.bu + ' 単位/日';
+  // KPI
+  document.getElementById('kv_m').textContent  = '¥'+fmt(r.yen);
+  document.getElementById('ks_m').textContent  = r.users+'人利用 / '+p.days+'日';
+  document.getElementById('kv_y').textContent  = '¥'+fmt(r.yen*12);
+  document.getElementById('ks_y').textContent  = '月間×12ヶ月（概算）';
+  const pp = r.users > 0 ? Math.floor(r.yen/r.users) : 0;
+  document.getElementById('kv_pp').textContent = '¥'+fmt(pp);
+  document.getElementById('ks_pp').textContent = '基本 '+r.bu+' 単位/日';
+
+  // 工賃インパクト HERO
+  document.getElementById('wh_cur').textContent = '¥'+r.yen.toLocaleString();
+  let wageDiff = 0;
+  if (p.wi < 7) {
+    const r2 = rev({...p, wi: p.wi+1});
+    wageDiff = r2.yen - r.yen;
+    document.getElementById('wh_diff').textContent = '+¥'+wageDiff.toLocaleString();
+    document.getElementById('adv_w').textContent   = '+¥'+wageDiff.toLocaleString();
+  } else {
+    document.getElementById('wh_diff').textContent = '最高区分 🌸';
+    document.getElementById('adv_w').textContent   = '（最高区分達成）';
+  }
 
   // インサイト
-  const diff1 = revenue(p, Math.min(100, p.util+1)).yen - r.yen;
-  document.getElementById('insight_text').innerHTML =
-    `利用率1%アップで月間 <strong>¥${diff1.toLocaleString()}</strong> の増収。` +
-    `現在の工賃区分（${WAGE_LABELS[p.wi]}）での月間売上は <strong>¥${r.yen.toLocaleString()}</strong>。`;
+  const r1up  = rev(p, Math.min(100, p.util+1)).yen - r.yen;
+  document.getElementById('adv_r').textContent = '¥'+r1up.toLocaleString();
 
-  // 工賃インパクト
-  document.getElementById('imp_cur').textContent = '¥' + r.yen.toLocaleString();
-  if (p.wi < 7) {
-    const p2 = {...p, wi: p.wi+1};
-    const r2 = revenue(p2);
-    const d = r2.yen - r.yen;
-    document.getElementById('imp_diff').textContent = '+¥' + d.toLocaleString();
-    document.getElementById('adv_wage').textContent = '月間+¥' + d.toLocaleString();
-  } else {
-    document.getElementById('imp_diff').textContent = '最高区分です 🌸';
-    document.getElementById('adv_wage').textContent = '最高工賃区分を達成済み';
-  }
-  document.getElementById('adv_rate').textContent = '¥' + diff1.toLocaleString();
+  // インサイトバー（動的コメント）
+  let insMsg = '';
+  if (r.yen >= 5000000) insMsg = `月間売上 <strong>¥${fmt(r.yen)}</strong> は優良水準です。`;
+  else if (r.yen >= 3000000) insMsg = `月間売上 <strong>¥${fmt(r.yen)}</strong> — さらなる改善余地があります。`;
+  else insMsg = `月間売上 <strong>¥${fmt(r.yen)}</strong> — 加算取得と工賃アップで増収を狙いましょう。`;
+
+  insMsg += ` 利用率1%アップで <strong>¥${r1up.toLocaleString()}/月</strong> の増収。`;
+  if (wageDiff > 0) insMsg += ` 工賃1段階アップで <strong>+¥${wageDiff.toLocaleString()}/月</strong> の増収が見込まれます。`;
+  document.getElementById('insight_txt').innerHTML = insMsg;
 
   // シナリオ
-  const best  = revenue(p, Math.min(100, p.util+10));
-  const worst = revenue(p, Math.max(50,  p.util-10));
-  document.getElementById('sc_b_r').textContent = '利用率 ' + Math.min(100,p.util+10) + '%';
-  document.getElementById('sc_b_a').textContent = '¥' + fmt(best.yen);
-  document.getElementById('sc_b_y').textContent = '年間：¥' + fmt(best.yen*12);
-  document.getElementById('sc_m_r').textContent = '利用率 ' + p.util + '%（現在）';
-  document.getElementById('sc_m_a').textContent = '¥' + fmt(r.yen);
-  document.getElementById('sc_m_y').textContent = '年間：¥' + fmt(r.yen*12);
-  document.getElementById('sc_w_r').textContent = '利用率 ' + Math.max(50,p.util-10) + '%';
-  document.getElementById('sc_w_a').textContent = '¥' + fmt(worst.yen);
-  document.getElementById('sc_w_y').textContent = '年間：¥' + fmt(worst.yen*12);
+  const best  = rev(p, Math.min(100, p.util+10));
+  const worst = rev(p, Math.max(50,  p.util-10));
+  document.getElementById('sc_br').textContent = '利用率 '+Math.min(100,p.util+10)+'%';
+  document.getElementById('sc_ba').textContent = '¥'+fmt(best.yen);
+  document.getElementById('sc_by').textContent = '年間：¥'+fmt(best.yen*12);
+  document.getElementById('sc_mr').textContent = '利用率 '+p.util+'%（現在）';
+  document.getElementById('sc_ma').textContent = '¥'+fmt(r.yen);
+  document.getElementById('sc_my').textContent = '年間：¥'+fmt(r.yen*12);
+  document.getElementById('sc_wr').textContent = '利用率 '+Math.max(50,p.util-10)+'%';
+  document.getElementById('sc_wa').textContent = '¥'+fmt(worst.yen);
+  document.getElementById('sc_wy').textContent = '年間：¥'+fmt(worst.yen*12);
 
-  // Breakdown
-  const items = [
-    {name:'基本報酬', u: r.baseU},
-    {name:'加算（日次）', u: r.dayTotal},
-    {name:'加算（月次）', u: r.monAdd},
-    {name:'処遇改善加算', u: r.treatU},
+  // 内訳テーブル
+  const rows = [
+    {n:'基本報酬',  u: r.baseU},
+    {n:'加算（日次）', u: r.dayT},
+    {n:'加算（月次）', u: r.mAdd},
+    {n:'処遇改善加算', u: r.treatU},
   ].filter(i => i.u > 0);
-  const bdy = document.getElementById('bd_body');
-  bdy.innerHTML = '';
-  items.forEach(i => {
-    const y = Math.floor(i.u * p.region);
+  const body = document.getElementById('bd_body');
+  body.innerHTML = '';
+  rows.forEach(i => {
+    const y   = Math.floor(i.u * p.region);
     const pct = r.yen > 0 ? (y/r.yen*100).toFixed(1) : 0;
-    bdy.innerHTML += `<tr>
-      <td class="nm">${i.name}</td>
+    body.innerHTML += `<tr>
+      <td>${i.n}</td>
       <td class="r">${i.u.toLocaleString()}</td>
       <td class="r">${y.toLocaleString()}</td>
-      <td class="pct-col">${pct}%</td>
+      <td class="pct">${pct}%</td>
     </tr>`;
   });
-  bdy.innerHTML += `<tr class="bd-total">
-    <td class="nm">合計</td>
+  body.innerHTML += `<tr class="bd-tot">
+    <td>合計</td>
     <td class="r">${r.totalU.toLocaleString()}</td>
     <td class="r">${r.yen.toLocaleString()}</td>
-    <td class="pct-col">100%</td>
+    <td class="pct">100%</td>
   </tr>`;
 
   updateCharts(p, r);
 }
 
+// ── CHARTS ──
 function updateCharts(p, r) {
-  const ROSE   = 'rgba(201,120,138,';
-  const SAGE   = 'rgba(122,158,139,';
-  const GOLD   = 'rgba(200,150,90,';
-  const MAUVE  = 'rgba(184,154,174,';
+  const C_ROSE  = n => `rgba(196,114,138,${n})`;
+  const C_SAGE  = n => `rgba(118,153,127,${n})`;
+  const C_GOLD  = n => `rgba(196,144,80,${n})`;
+  const C_MAUVE = n => `rgba(179,148,171,${n})`;
+  const gridC   = 'rgba(234,224,216,0.6)';
+  const tickC   = '#b09898';
 
-  // Line
+  // LINE
   const rates=[], amts=[];
-  for (let rt=50; rt<=100; rt+=5) { rates.push(rt+'%'); amts.push(revenue(p,rt).yen); }
-  if (lChart) lChart.destroy();
-  lChart = new Chart(document.getElementById('cLine'), {
+  for (let rt=50; rt<=100; rt+=5) { rates.push(rt+'%'); amts.push(rev(p,rt).yen); }
+  if (lC) lC.destroy();
+  lC = new Chart(document.getElementById('cLine'), {
     type:'line',
     data:{ labels:rates, datasets:[{
       data:amts,
-      borderColor: ROSE+'1)',
-      backgroundColor: ROSE+'0.08)',
-      fill:true, tension:0.45,
-      pointBackgroundColor: amts.map((_,i)=>{ const rt=50+i*5; return rt===p.util? ROSE+'1)':ROSE+'0.5)'; }),
-      pointRadius: amts.map((_,i)=>{ const rt=50+i*5; return rt===p.util?8:3; }),
-      pointBorderColor: 'white',
-      pointBorderWidth: amts.map((_,i)=>{ const rt=50+i*5; return rt===p.util?2:0; }),
-    }]},
-    options:{
-      responsive:true,
-      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>'¥'+c.raw.toLocaleString('ja-JP')}} },
-      scales:{
-        y:{ ticks:{color:'#b0a5a5',callback:v=>'¥'+(v/10000).toFixed(0)+'万'}, grid:{color:'rgba(232,221,213,0.5)'} },
-        x:{ ticks:{color:'#b0a5a5'}, grid:{color:'rgba(232,221,213,0.3)'} }
-      }
-    }
-  });
-
-  // Donut
-  const bY = Math.floor(r.baseU*p.region);
-  const aY = Math.floor((r.dayTotal+r.monAdd)*p.region);
-  const tY = Math.floor(r.treatU*p.region);
-  const ds=[],lbls=[];
-  if(bY>0){ds.push(bY);lbls.push('基本報酬');}
-  if(aY>0){ds.push(aY);lbls.push('各種加算');}
-  if(tY>0){ds.push(tY);lbls.push('処遇改善加算');}
-  if (dChart) dChart.destroy();
-  dChart = new Chart(document.getElementById('cDonut'), {
-    type:'doughnut',
-    data:{ labels:lbls, datasets:[{
-      data:ds,
-      backgroundColor:[ROSE+'0.75)',SAGE+'0.75)',GOLD+'0.75)'],
-      borderColor:'white', borderWidth:3,
-    }]},
-    options:{ responsive:true, plugins:{
-      legend:{position:'bottom', labels:{color:'#7a6e6e',font:{size:11},padding:14}},
-      tooltip:{callbacks:{label:c=>c.label+': ¥'+c.raw.toLocaleString()}}
-    }}
-  });
-
-  // Bar 12m
-  const season = [p.util-2,p.util-1,p.util+2,p.util+1,p.util-4,p.util-7,p.util-2,p.util,p.util+3,p.util+2,p.util-1,p.util-2];
-  const barD = season.map(rt=>revenue(p,Math.max(50,Math.min(100,rt))).yen);
-  const mx=Math.max(...barD), mn=Math.min(...barD);
-  if (bChart) bChart.destroy();
-  bChart = new Chart(document.getElementById('cBar'), {
-    type:'bar',
-    data:{ labels:MONTHS, datasets:[{
-      data:barD,
-      backgroundColor: barD.map(v=>v===mx? SAGE+'0.8)':v===mn? GOLD+'0.6)':ROSE+'0.55)'),
-      borderRadius:8,
-      borderSkipped:false,
+      borderColor: C_ROSE(1),
+      backgroundColor: C_ROSE(0.08),
+      fill:true, tension:0.42,
+      pointBackgroundColor: amts.map((_,i)=>{ const rt=50+i*5; return rt===p.util?C_ROSE(1):C_ROSE(0.45); }),
+      pointRadius:        amts.map((_,i)=>{ const rt=50+i*5; return rt===p.util?9:3; }),
+      pointBorderColor:   amts.map((_,i)=>{ const rt=50+i*5; return rt===p.util?'white':'transparent'; }),
+      pointBorderWidth:   amts.map((_,i)=>{ const rt=50+i*5; return rt===p.util?2:0; }),
     }]},
     options:{
       responsive:true,
       plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>'¥'+c.raw.toLocaleString()}} },
       scales:{
-        y:{ ticks:{color:'#b0a5a5',callback:v=>'¥'+(v/10000).toFixed(0)+'万'}, grid:{color:'rgba(232,221,213,0.5)'} },
-        x:{ ticks:{color:'#b0a5a5'}, grid:{display:false} }
+        y:{ ticks:{color:tickC,callback:v=>'¥'+(v/10000).toFixed(0)+'万'}, grid:{color:gridC} },
+        x:{ ticks:{color:tickC}, grid:{color:'rgba(234,224,216,0.3)'} }
+      }
+    }
+  });
+
+  // DONUT
+  const bY = Math.floor(r.baseU*p.region);
+  const aY = Math.floor((r.dayT+r.mAdd)*p.region);
+  const tY = Math.floor(r.treatU*p.region);
+  const ds=[],lbs=[];
+  if(bY>0){ds.push(bY);lbs.push('基本報酬');}
+  if(aY>0){ds.push(aY);lbs.push('各種加算');}
+  if(tY>0){ds.push(tY);lbs.push('処遇改善加算');}
+  if (dC) dC.destroy();
+  dC = new Chart(document.getElementById('cDonut'), {
+    type:'doughnut',
+    data:{ labels:lbs, datasets:[{
+      data:ds,
+      backgroundColor:[C_ROSE(0.75),C_SAGE(0.75),C_GOLD(0.75)],
+      borderColor:'white', borderWidth:3,
+      hoverOffset:6,
+    }]},
+    options:{ responsive:true, plugins:{
+      legend:{ position:'bottom', labels:{ color:'#786a6a', font:{size:11}, padding:14 } },
+      tooltip:{ callbacks:{ label:c=>c.label+': ¥'+c.raw.toLocaleString() } }
+    }}
+  });
+
+  // BAR
+  const season=[p.util-2,p.util-1,p.util+2,p.util+1,p.util-4,p.util-7,p.util-2,p.util,p.util+3,p.util+2,p.util-1,p.util-2];
+  const barD=season.map(rt=>rev(p,Math.max(50,Math.min(100,rt))).yen);
+  const mx=Math.max(...barD), mn=Math.min(...barD);
+  if (bC) bC.destroy();
+  bC = new Chart(document.getElementById('cBar'), {
+    type:'bar',
+    data:{ labels:MONTHS, datasets:[{
+      data:barD,
+      backgroundColor:barD.map(v=>v===mx?C_SAGE(0.8):v===mn?C_GOLD(0.65):C_ROSE(0.55)),
+      borderRadius:8, borderSkipped:false,
+    }]},
+    options:{
+      responsive:true,
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>'¥'+c.raw.toLocaleString()}} },
+      scales:{
+        y:{ ticks:{color:tickC,callback:v=>'¥'+(v/10000).toFixed(0)+'万'}, grid:{color:gridC} },
+        x:{ ticks:{color:tickC,font:{size:11}}, grid:{display:false} }
       }
     }
   });
 }
 
-window.onload = calc;
+// ── INIT ──
+window.onload = () => {
+  calc();
+  // モバイルは設定タブをデフォルトにしてある（sidebar.active）
+  // 900px以上は常にsidebarを表示
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 900) {
+      document.getElementById('sidebar').classList.add('active');
+    }
+  });
+};
 </script>
 </body>
 </html>
