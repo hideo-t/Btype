@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>就労継続支援A型 売上シミュレーター 2024</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0a0d14;
+    --surface: #111620;
+    --surface2: #1a2035;
+    --border: #1e2d4a;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --glow: 0 0 30px rgba(0,212,255,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    background-image: 
+      radial-gradient(ellipse at 10% 0%, rgba(0,212,255,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(124,58,237,0.08) 0%, transparent 50%);
+  }
+
+  .header {
+    padding: 28px 40px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,13,20,0.9);
+  }
+
+  .logo-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+
+  .header-text h1 {
+    font-size: 18px; font-weight: 700; letter-spacing: 0.02em;
+  }
+  .header-text p {
+    font-size: 11px; color: var(--muted); letter-spacing: 0.1em;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .badge {
+    margin-left: auto;
+    background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15));
+    border: 1px solid rgba(0,212,255,0.3);
+    color: var(--accent);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.1em;
+  }
+
+  .main {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 0;
+    min-height: calc(100vh - 81px);
+  }
+
+  .sidebar {
+    border-right: 1px solid var(--border);
+    padding: 28px;
+    overflow-y: auto;
+    background: var(--surface);
+  }
+
+  .content {
+    padding: 28px;
+    overflow-y: auto;
+  }
+
+  .section-title {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    letter-spacing: 0.05em;
+  }
+
+  select, input[type="number"], input[type="range"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  select:focus, input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
+  }
+
+  input[type="range"] {
+    padding: 0;
+    height: 6px;
+    cursor: pointer;
+    border-radius: 3px;
+    accent-color: var(--accent);
+  }
+
+  .range-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--accent);
+    text-align: center;
+    display: block;
+    margin-top: 8px;
+  }
+
+  .addon-grid {
+    display: grid;
+    gap: 8px;
+  }
+
+  .addon-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 12px;
+  }
+  .addon-item:hover { border-color: rgba(0,212,255,0.3); }
+  .addon-item.active {
+    border-color: var(--accent);
+    background: rgba(0,212,255,0.05);
+  }
+
+  .addon-item input[type="checkbox"] {
+    width: auto;
+    accent-color: var(--accent);
+    margin: 0;
+  }
+
+  .addon-name { flex: 1; margin: 0 10px; }
+  .addon-unit {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent3);
+  }
+
+  /* KPI Cards */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s;
+  }
+  .kpi-card:hover { transform: translateY(-2px); }
+
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .kpi-card.primary::before { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .kpi-card.success::before { background: var(--accent3); }
+  .kpi-card.warn::before { background: var(--warn); }
+
+  .kpi-label {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  .kpi-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 28px;
+    font-weight: 500;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .kpi-card.primary .kpi-value { color: var(--accent); }
+  .kpi-card.success .kpi-value { color: var(--accent3); }
+  .kpi-card.warn .kpi-value { color: var(--warn); }
+
+  .kpi-sub {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .kpi-icon {
+    position: absolute;
+    top: 20px; right: 20px;
+    font-size: 28px;
+    opacity: 0.15;
+  }
+
+  /* Charts */
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  .chart-title {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    color: var(--text);
+  }
+
+  /* Breakdown table */
+  .breakdown-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+
+  .breakdown-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .breakdown-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+  }
+  .breakdown-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(30,45,74,0.5);
+    font-family: 'DM Mono', monospace;
+  }
+  .breakdown-table tr:last-child td { border-bottom: none; }
+  .breakdown-table .total td {
+    font-weight: 700;
+    color: var(--accent);
+    border-top: 1px solid var(--border);
+    background: rgba(0,212,255,0.03);
+  }
+  .breakdown-table .name-col { 
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+  }
+  .val-col { text-align: right; }
+  .pct-col { text-align: right; color: var(--muted); font-size: 11px; }
+
+  /* Scenario section */
+  .scenario-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .scenario-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+  .scenario-card.best { border-color: var(--accent3); }
+  .scenario-card.base { border-color: var(--accent); }
+  .scenario-card.worst { border-color: var(--danger); }
+
+  .scenario-label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    font-family: 'DM Mono', monospace;
+  }
+  .scenario-card.best .scenario-label { color: var(--accent3); }
+  .scenario-card.base .scenario-label { color: var(--accent); }
+  .scenario-card.worst .scenario-label { color: var(--danger); }
+
+  .scenario-rate {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .scenario-amount {
+    font-family: 'DM Mono', monospace;
+    font-size: 22px;
+    font-weight: 500;
+  }
+  .scenario-card.best .scenario-amount { color: var(--accent3); }
+  .scenario-card.base .scenario-amount { color: var(--accent); }
+  .scenario-card.worst .scenario-amount { color: var(--danger); }
+
+  .scenario-year {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    margin-top: 4px;
+  }
+
+  .tip-box {
+    background: rgba(16,185,129,0.05);
+    border: 1px solid rgba(16,185,129,0.2);
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 12px;
+    color: var(--accent3);
+    margin-top: 16px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .tip-icon { font-size: 16px; flex-shrink: 0; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .kpi-grid, .chart-grid, .scenario-grid, .breakdown-card {
+    animation: fadeUp 0.4s ease both;
+  }
+
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+  .full-chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 28px;
+  }
+
+  select option { background: var(--surface2); }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo-icon">📊</div>
+  <div class="header-text">
+    <h1>就労継続支援A型 売上シミュレーター</h1>
+    <p>2024年度報酬改定対応 · REVENUE FORECAST SYSTEM</p>
+  </div>
+  <span class="badge">2024 REVISED</span>
+</header>
+
+<div class="main">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <div class="section-title">基本設定</div>
+
+    <div class="form-group">
+      <label>事業所の定員数</label>
+      <select id="capacity" onchange="calc()">
+        <option value="20">20人以下</option>
+        <option value="40" selected>21〜40人</option>
+        <option value="60">41〜60人</option>
+        <option value="80">61〜80人</option>
+        <option value="81">81人以上</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>実際の定員人数</label>
+      <input type="number" id="actual_capacity" value="30" min="1" max="200" onchange="calc()">
+    </div>
+
+    <div class="form-group">
+      <label>労働時間区分</label>
+      <select id="work_hours" onchange="calc()">
+        <option value="1">Ⅰ：7時間30分以上</option>
+        <option value="2" selected>Ⅱ：6時間以上7時間30分未満</option>
+        <option value="3">Ⅲ：4時間以上6時間未満</option>
+        <option value="4">Ⅳ：4時間未満</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>地域区分（1単位の単価）</label>
+      <select id="region" onchange="calc()">
+        <option value="11.40">1級地（11.40円）— 東京23区等</option>
+        <option value="11.12">2級地（11.12円）</option>
+        <option value="11.05">3級地（11.05円）</option>
+        <option value="10.84">4級地（10.84円）</option>
+        <option value="10.70">5級地（10.70円）</option>
+        <option value="10.42">6級地（10.42円）</option>
+        <option value="10.21">7級地（10.21円）</option>
+        <option value="10.00" selected>その他（10.00円）</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>月間営業日数</label>
+      <input type="number" id="working_days" value="22" min="15" max="27" onchange="calc()">
+    </div>
+
+    <div class="form-group">
+      <label>平均利用率：<span id="rate_display">85</span>%</label>
+      <input type="range" id="utilization" min="50" max="100" value="85" oninput="document.getElementById('rate_display').textContent=this.value; calc()">
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-title">加算設定</div>
+
+    <div class="addon-grid">
+      <label class="addon-item" id="lbl_prof">
+        <input type="checkbox" id="addon_prof1" onchange="toggleAddon('lbl_prof',this);calc()">
+        <span class="addon-name">福祉専門職員配置加算Ⅰ</span>
+        <span class="addon-unit">+15単位/日</span>
+      </label>
+      <label class="addon-item" id="lbl_prof2">
+        <input type="checkbox" id="addon_prof2" onchange="toggleAddon('lbl_prof2',this);calc()">
+        <span class="addon-name">福祉専門職員配置加算Ⅱ</span>
+        <span class="addon-unit">+10単位/日</span>
+      </label>
+      <label class="addon-item" id="lbl_trans">
+        <input type="checkbox" id="addon_trans" onchange="toggleAddon('lbl_trans',this);calc()">
+        <span class="addon-name">就労移行支援体制加算</span>
+        <span class="addon-unit">+22単位/日</span>
+      </label>
+      <label class="addon-item" id="lbl_med">
+        <input type="checkbox" id="addon_med" onchange="toggleAddon('lbl_med',this);calc()">
+        <span class="addon-name">医療連携体制加算Ⅰ</span>
+        <span class="addon-unit">+32単位/日</span>
+      </label>
+      <label class="addon-item" id="lbl_peer">
+        <input type="checkbox" id="addon_peer" onchange="toggleAddon('lbl_peer',this);calc()">
+        <span class="addon-name">ピアサポート実施加算</span>
+        <span class="addon-unit">+100単位/月</span>
+      </label>
+      <label class="addon-item" id="lbl_absent">
+        <input type="checkbox" id="addon_absent" checked onchange="toggleAddon('lbl_absent',this);calc()">
+        <span class="addon-name">欠席時対応加算</span>
+        <span class="addon-unit">+94単位×4回</span>
+      </label>
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-title">処遇改善加算</div>
+
+    <div class="form-group">
+      <label>処遇改善加算区分</label>
+      <select id="treatment" onchange="calc()">
+        <option value="0">なし（0%）</option>
+        <option value="0.245" selected>加算Ⅰ（24.5%）</option>
+        <option value="0.224">加算Ⅱ（22.4%）</option>
+        <option value="0.178">加算Ⅲ（17.8%）</option>
+        <option value="0.145">加算Ⅳ（14.5%）</option>
+      </select>
+    </div>
+
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card primary">
+        <div class="kpi-label">月間売上（予測）</div>
+        <div class="kpi-value" id="kpi_month">—</div>
+        <div class="kpi-sub" id="kpi_month_sub">—</div>
+        <div class="kpi-icon">💴</div>
+      </div>
+      <div class="kpi-card success">
+        <div class="kpi-label">年間売上（予測）</div>
+        <div class="kpi-value" id="kpi_year">—</div>
+        <div class="kpi-sub" id="kpi_year_sub">—</div>
+        <div class="kpi-icon">📈</div>
+      </div>
+      <div class="kpi-card warn">
+        <div class="kpi-label">1人あたり月間単価</div>
+        <div class="kpi-value" id="kpi_per_person">—</div>
+        <div class="kpi-sub" id="kpi_base_unit">—</div>
+        <div class="kpi-icon">👤</div>
+      </div>
+    </div>
+
+    <!-- Scenario -->
+    <div class="section-title">利用率シナリオ比較（月間）</div>
+    <div class="scenario-grid">
+      <div class="scenario-card best">
+        <div class="scenario-label">▲ BEST CASE</div>
+        <div class="scenario-rate" id="sc_best_rate">—</div>
+        <div class="scenario-amount" id="sc_best">—</div>
+        <div class="scenario-year" id="sc_best_year">—</div>
+      </div>
+      <div class="scenario-card base">
+        <div class="scenario-label">◆ BASE CASE</div>
+        <div class="scenario-rate" id="sc_base_rate">—</div>
+        <div class="scenario-amount" id="sc_base">—</div>
+        <div class="scenario-year" id="sc_base_year">—</div>
+      </div>
+      <div class="scenario-card worst">
+        <div class="scenario-label">▼ WORST CASE</div>
+        <div class="scenario-rate" id="sc_worst_rate">—</div>
+        <div class="scenario-amount" id="sc_worst">—</div>
+        <div class="scenario-year" id="sc_worst_year">—</div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-title">利用率別 月間売上シミュレーション</div>
+        <canvas id="chartLine" height="180"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">売上内訳（月間）</div>
+        <canvas id="chartDoughnut" height="180"></canvas>
+      </div>
+    </div>
+
+    <!-- 12ヶ月見込み -->
+    <div class="full-chart-card">
+      <div class="chart-title">12ヶ月間 売上見込み（利用率の月別変動シミュレーション）</div>
+      <canvas id="chartBar" height="100"></canvas>
+    </div>
+
+    <!-- Breakdown -->
+    <div class="breakdown-card">
+      <div class="section-title" style="margin-bottom:20px">報酬内訳（月間）</div>
+      <table class="breakdown-table" id="breakdown_table">
+        <thead>
+          <tr>
+            <th>項目</th>
+            <th class="val-col">単位数</th>
+            <th class="val-col">金額（円）</th>
+            <th class="pct-col">構成比</th>
+          </tr>
+        </thead>
+        <tbody id="breakdown_body"></tbody>
+      </table>
+    </div>
+
+    <div class="tip-box">
+      <span class="tip-icon">💡</span>
+      <div>
+        <strong>経営のヒント：</strong>
+        利用率1%向上で月間約<span id="tip_amount">—</span>の増収になります。
+        加算の積極的な取得と、欠席時対応の適切な記録が売上最大化のポイントです。
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// 基本報酬単位数テーブル（2024年改定）
+const BASE_UNITS = {
+  20: { 1: 759, 2: 716, 3: 618, 4: 406 },
+  40: { 1: 724, 2: 682, 3: 590, 4: 388 },
+  60: { 1: 703, 2: 663, 3: 574, 4: 378 },
+  80: { 1: 682, 2: 644, 3: 558, 4: 367 },
+  81: { 1: 665, 2: 628, 3: 545, 4: 358 },
+};
+
+const MONTHS = ['4月','5月','6月','7月','8月','9月','10月','11月','12月','1月','2月','3月'];
+
+let lineChart, donutChart, barChart;
+
+function toggleAddon(id, chk) {
+  document.getElementById(id).classList.toggle('active', chk.checked);
+}
+
+function fmt(n) {
+  if (n >= 10000000) return (n/10000000).toFixed(1)+'千万';
+  if (n >= 1000000) return (n/1000000).toFixed(1)+'百万';
+  return n.toLocaleString('ja-JP');
+}
+
+function fmtFull(n) {
+  return n.toLocaleString('ja-JP') + '円';
+}
+
+function calcRevenue(utilRate) {
+  const cap = parseInt(document.getElementById('capacity').value);
+  const actualCap = parseInt(document.getElementById('actual_capacity').value) || 30;
+  const wh = parseInt(document.getElementById('work_hours').value);
+  const region = parseFloat(document.getElementById('region').value);
+  const days = parseInt(document.getElementById('working_days').value) || 22;
+  const treatment = parseFloat(document.getElementById('treatment').value) || 0;
+
+  // 基本報酬
+  const baseUnit = BASE_UNITS[cap][wh];
+  const users = Math.floor(actualCap * utilRate / 100);
+
+  // 月間基本単位
+  let baseUnits = baseUnit * users * days;
+
+  // 加算（日単位）
+  let addonUnitsPerDay = 0;
+  if (document.getElementById('addon_prof1').checked) addonUnitsPerDay += 15;
+  if (document.getElementById('addon_prof2').checked) addonUnitsPerDay += 10;
+  if (document.getElementById('addon_trans').checked) addonUnitsPerDay += 22;
+  if (document.getElementById('addon_med').checked) addonUnitsPerDay += 32;
+
+  const addonDailyTotal = addonUnitsPerDay * users * days;
+
+  // 加算（月単位）
+  let addonMonthUnits = 0;
+  if (document.getElementById('addon_peer').checked) addonMonthUnits += 100 * users;
+  if (document.getElementById('addon_absent').checked) addonMonthUnits += 94 * 4; // 月4回上限
+
+  const subtotalUnits = baseUnits + addonDailyTotal + addonMonthUnits;
+
+  // 処遇改善加算（基本報酬＋日常加算の合計に対して）
+  const treatmentUnits = Math.floor((baseUnits + addonDailyTotal) * treatment);
+
+  const totalUnits = subtotalUnits + treatmentUnits;
+  const totalYen = Math.floor(totalUnits * region);
+
+  return {
+    users, baseUnit, baseUnits, addonDailyTotal, addonMonthUnits,
+    treatmentUnits, totalUnits, totalYen,
+    region, days, actualCap
+  };
+}
+
+function calc() {
+  const utilRate = parseInt(document.getElementById('utilization').value);
+  const r = calcRevenue(utilRate);
+
+  // KPI
+  document.getElementById('kpi_month').textContent = '¥' + fmt(r.totalYen);
+  document.getElementById('kpi_month_sub').textContent = r.users + '人利用 / ' + r.days + '日';
+  document.getElementById('kpi_year').textContent = '¥' + fmt(r.totalYen * 12);
+  document.getElementById('kpi_year_sub').textContent = '月間×12ヶ月（概算）';
+  const perPerson = r.users > 0 ? Math.floor(r.totalYen / r.users) : 0;
+  document.getElementById('kpi_per_person').textContent = '¥' + fmt(perPerson);
+  document.getElementById('kpi_base_unit').textContent = '基本' + r.baseUnit + '単位/日';
+
+  // Scenarios
+  const best = calcRevenue(Math.min(100, utilRate + 10));
+  const worst = calcRevenue(Math.max(50, utilRate - 10));
+  document.getElementById('sc_best_rate').textContent = '利用率 ' + Math.min(100, utilRate+10) + '%';
+  document.getElementById('sc_best').textContent = '¥' + fmt(best.totalYen);
+  document.getElementById('sc_best_year').textContent = '年間：¥' + fmt(best.totalYen*12);
+  document.getElementById('sc_base_rate').textContent = '利用率 ' + utilRate + '%（現在）';
+  document.getElementById('sc_base').textContent = '¥' + fmt(r.totalYen);
+  document.getElementById('sc_base_year').textContent = '年間：¥' + fmt(r.totalYen*12);
+  document.getElementById('sc_worst_rate').textContent = '利用率 ' + Math.max(50, utilRate-10) + '%';
+  document.getElementById('sc_worst').textContent = '¥' + fmt(worst.totalYen);
+  document.getElementById('sc_worst_year').textContent = '年間：¥' + fmt(worst.totalYen*12);
+
+  // Tip
+  const diff1 = calcRevenue(Math.min(100, utilRate+1)).totalYen - r.totalYen;
+  document.getElementById('tip_amount').textContent = fmtFull(diff1);
+
+  // Breakdown table
+  const total = r.totalYen;
+  const rows = [
+    { name: '基本報酬', units: r.baseUnits, yen: Math.floor(r.baseUnits * r.region) },
+    { name: '加算合計（日単位）', units: r.addonDailyTotal, yen: Math.floor(r.addonDailyTotal * r.region) },
+    { name: '加算合計（月単位）', units: r.addonMonthUnits, yen: Math.floor(r.addonMonthUnits * r.region) },
+    { name: '処遇改善加算', units: r.treatmentUnits, yen: Math.floor(r.treatmentUnits * r.region) },
+  ];
+  const tbody = document.getElementById('breakdown_body');
+  tbody.innerHTML = '';
+  rows.forEach(row => {
+    if (row.units === 0) return;
+    const pct = total > 0 ? (row.yen / total * 100).toFixed(1) : 0;
+    tbody.innerHTML += `<tr>
+      <td class="name-col">${row.name}</td>
+      <td class="val-col">${row.units.toLocaleString()}</td>
+      <td class="val-col">${row.yen.toLocaleString()}</td>
+      <td class="pct-col">${pct}%</td>
+    </tr>`;
+  });
+  tbody.innerHTML += `<tr class="total">
+    <td class="name-col">合計</td>
+    <td class="val-col">${r.totalUnits.toLocaleString()}</td>
+    <td class="val-col">${r.totalYen.toLocaleString()}</td>
+    <td class="pct-col">100%</td>
+  </tr>`;
+
+  // Charts
+  updateCharts(utilRate, r);
+}
+
+function updateCharts(currentRate, r) {
+  // Line chart: 利用率50〜100%
+  const rates = [];
+  const amounts = [];
+  for (let rate = 50; rate <= 100; rate += 5) {
+    rates.push(rate + '%');
+    amounts.push(calcRevenue(rate).totalYen);
+  }
+
+  if (lineChart) lineChart.destroy();
+  lineChart = new Chart(document.getElementById('chartLine'), {
+    type: 'line',
+    data: {
+      labels: rates,
+      datasets: [{
+        label: '月間売上',
+        data: amounts,
+        borderColor: '#00d4ff',
+        backgroundColor: 'rgba(0,212,255,0.1)',
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: amounts.map((_, i) => {
+          const rate = 50 + i * 5;
+          return rate === currentRate ? '#f59e0b' : '#00d4ff';
+        }),
+        pointRadius: amounts.map((_, i) => {
+          const rate = 50 + i * 5;
+          return rate === currentRate ? 8 : 3;
+        }),
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => '¥' + ctx.raw.toLocaleString('ja-JP')
+          }
+        }
+      },
+      scales: {
+        y: {
+          ticks: {
+            color: '#64748b',
+            callback: v => '¥' + (v/10000).toFixed(0) + '万'
+          },
+          grid: { color: 'rgba(30,45,74,0.5)' }
+        },
+        x: {
+          ticks: { color: '#64748b' },
+          grid: { color: 'rgba(30,45,74,0.3)' }
+        }
+      }
+    }
+  });
+
+  // Doughnut
+  const baseYen = Math.floor(r.baseUnits * r.region);
+  const addonYen = Math.floor((r.addonDailyTotal + r.addonMonthUnits) * r.region);
+  const treatYen = Math.floor(r.treatmentUnits * r.region);
+  const donutData = [baseYen, addonYen, treatYen].filter(v => v > 0);
+  const donutLabels = ['基本報酬', '各種加算', '処遇改善加算'].filter((_, i) => [baseYen, addonYen, treatYen][i] > 0);
+
+  if (donutChart) donutChart.destroy();
+  donutChart = new Chart(document.getElementById('chartDoughnut'), {
+    type: 'doughnut',
+    data: {
+      labels: donutLabels,
+      datasets: [{
+        data: donutData,
+        backgroundColor: ['#00d4ff', '#7c3aed', '#10b981'],
+        borderColor: '#111620',
+        borderWidth: 3,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#94a3b8', font: { size: 11 } }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => ctx.label + ': ¥' + ctx.raw.toLocaleString('ja-JP')
+          }
+        }
+      }
+    }
+  });
+
+  // Bar chart: 12ヶ月（季節変動シミュレーション）
+  const seasonalRates = [currentRate-3, currentRate-2, currentRate+2, currentRate+1,
+                         currentRate-5, currentRate-8, currentRate-2, currentRate,
+                         currentRate+3, currentRate+2, currentRate-1, currentRate-3];
+  const barData = seasonalRates.map(r2 => calcRevenue(Math.max(50, Math.min(100, r2))).totalYen);
+
+  if (barChart) barChart.destroy();
+  barChart = new Chart(document.getElementById('chartBar'), {
+    type: 'bar',
+    data: {
+      labels: MONTHS,
+      datasets: [{
+        label: '月間売上',
+        data: barData,
+        backgroundColor: barData.map((v, i) => {
+          const max = Math.max(...barData);
+          if (v === max) return 'rgba(16,185,129,0.8)';
+          if (v === Math.min(...barData)) return 'rgba(239,68,68,0.6)';
+          return 'rgba(0,212,255,0.6)';
+        }),
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => '¥' + ctx.raw.toLocaleString('ja-JP')
+          }
+        }
+      },
+      scales: {
+        y: {
+          ticks: {
+            color: '#64748b',
+            callback: v => '¥' + (v/10000).toFixed(0) + '万'
+          },
+          grid: { color: 'rgba(30,45,74,0.5)' }
+        },
+        x: {
+          ticks: { color: '#64748b' },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+// 初期化
+window.onload = calc;
+</script>
+</body>
+</html>
